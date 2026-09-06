@@ -1,7 +1,4 @@
 'use strict';
-/*Prueba 01*/
-
-let mi_variable = "";
 
 /* ===================================================================
    app.js - punto de entrada de la aplicacion.

@@ -1,0 +1,104 @@
+/* ===================================================================
+   Estilos propios.
+
+   El index se sostiene con Bootstrap 5.3: grid (row/col), utilidades
+   de espaciado/flex y modo oscuro nativo (data-bs-theme="dark").
+   Para mostrar/ocultar se usa la utilidad .d-none de Bootstrap.
+   =================================================================== */
+
+/* La fila principal ocupa como mínimo todo el alto del viewport.
+   - Va en la .row (no en el container): la .row es flex y estira sus
+     columnas (align-items: stretch), así el <header> del menú lateral
+     mide todo el alto y su navbar (h-100) + "Crear Lista" (mt-auto)
+     quedan pegados arriba y abajo del viewport.
+   - 100dvh (dynamic viewport height) en vez de 100vh: contempla la
+     barra de direcciones de mobile, que aparece/desaparece (con 100vh
+     se genera un saltito / overflow).
+   - min-height (no height): si las tareas crecen, la página se pasa
+     de largo en lugar de recortarse. */
+.app-shell {
+  /* menos los 2rem del p-3 del container-fluid, sino la página se pasa del
+     viewport por esos 2rem y aparece scroll vertical de más. */
+  min-height: calc(100dvh - 2rem);
+}
+
+/* Ocultar las barras de scroll (el scroll con rueda/touch sigue funcionando):
+   la página y el listado de listas scrollean sin mostrar la barra. */
+* {
+  scrollbar-width: none;            /* Firefox */
+}
+*::-webkit-scrollbar {
+  display: none;                    /* Chrome / Edge / Safari */
+}
+
+/* Paleta oscura propia, matcheando desktop_design.jpeg. No pisamos las
+   clases de Bootstrap (eso pediría !important); redefinimos las variables
+   --bs-* que esas clases ya leen. El color de acento (azul de Bootstrap)
+   NO se toca: en el mockup se ve violeta, en la app queda azul.
+   Solo en tema oscuro: si se pasa a claro, mandan los valores de Bootstrap. */
+[data-bs-theme="dark"] {
+  /* Página / body (.bg-body-tertiary): el fondo más oscuro, casi negro */
+  --bs-tertiary-bg: #0d0d0d;
+  --bs-tertiary-bg-rgb: 13, 13, 13;
+
+  /* Paneles y tarjetas (.bg-body): sidebar, cajón de tabs, filas de tarea */
+  --bs-body-bg: #1c1c1c;
+  --bs-body-bg-rgb: 28, 28, 28;
+
+  /* Bordes sutiles como en la referencia */
+  --bs-border-color: #2c2c2c;
+  --bs-border-color-translucent: #2c2c2c;
+}
+
+/* Alinea las líneas (border-bottom) del encabezado del sidebar y del panel.
+   Bootstrap no tiene una utilidad de min-height con valor libre, y el
+   encabezado del panel es más alto (título + fecha en dos renglones) que
+   la marca del sidebar (un renglón). Se les da la misma altura mínima y
+   se centran verticalmente, así ambas líneas caen a la misma altura.
+   El padding superior ya está igualado en el HTML (p-3 p-lg-4 en los dos). */
+.franja-encabezado {
+  min-height: 3.5rem;
+}
+
+/* El texto del botón de tema alterna "Claro" / "Oscuro" (largos distintos).
+   Le fijamos un ancho mínimo para que el botón no cambie de tamaño al togglear. */
+#texto-tema {
+  display: inline-block;
+  min-width: 3.5rem;
+  text-align: center;
+}
+
+/* Solo el listado de listas scrollea; la marca, "Mis Listas" y el form
+   "Crear Lista" quedan fijos. min-height: 0 es obligatorio: un flex-item no
+   se encoge por debajo de su contenido (min-height: auto) y sin esto el
+   overflow-y-auto no llega a activarse. Bootstrap no tiene utilidad para esto. */
+#listas-sidebar {
+  min-height: 0;
+}
+
+/* Lista activa: relleno bien visible + texto negro (blanco sobre el color
+   no llega a WCAG AA; negro sí). */
+#listas-sidebar .list-group-item.active {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #000;
+}
+
+
+/* En desktop el sidebar se acota al alto de la pantalla (y queda sticky si
+   el panel derecho es más largo). Con el navbar de alto fijo, el
+   #listas-sidebar de adentro scrollea en vez de empujar el form hacia abajo.
+   En mobile no se toca: el sidebar fluye y scrollea la página entera. */
+@media (min-width: 992px) {
+  /* La .row tiene p-3 (1rem arriba y abajo): el sidebar mide el viewport
+     menos ese padding, y queda sticky a 1rem del borde. */
+  .app-shell > header {
+    position: sticky;
+    top: 1rem;
+    height: calc(100dvh - 2rem);
+  }
+
+  .app-shell > header > .navbar {
+    overflow: hidden;
+  }
+}

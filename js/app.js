@@ -1,4 +1,9 @@
 'use strict';
+/*Registro del service-worker*/
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("./service-worker.js");
+}
+
 
 /* ===================================================================
    app.js - punto de entrada de la aplicacion.

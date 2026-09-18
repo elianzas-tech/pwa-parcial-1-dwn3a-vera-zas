@@ -102,3 +102,53 @@
     overflow: hidden;
   }
 }
+
+/* Checkbox real (input type="checkbox"), pintado con los mismos SVG que
+   antes se mostraban con <img>. appearance: none saca el tilde nativo del
+   navegador para poder dibujar el ícono nosotros vía background-image. */
+.check-custom {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: url('../images/check_box_outline_blank.svg') no-repeat center / contain;
+}
+.check-custom:checked {
+  background-image: url('../images/check_box_selected.svg');
+}
+
+/* El check de "completada" usa un ícono distinto al marcarse. */
+.check-custom.check-completar:checked {
+  background-image: url('../images/check_box_completed.svg');
+}
+
+/* El <label> asociado (for=...) al checkbox también muestra la manito:
+   clickear el texto tilda/destilda igual que clickear el cuadradito. */
+.check-custom + label {
+  cursor: pointer;
+}
+
+/* ===================================================================
+   Tamaños de ícono. Antes cada <img> se armaba en JS con .width/.height
+   repetidos a mano (20/20, 16/16, 18/18...) en cada función de render.
+   Con estas clases el tamaño lo define el CSS (una sola fuente de verdad)
+   y el JS solo dice "este ícono es chico/mediano/grande". Los íconos son
+   siempre decorativos dentro de un botón con su propio texto/aria-label
+   (ver alt=""), y el botón ya tiene tamaño fijo por el padding de
+   Bootstrap, así que no hace falta el width/height HTML de más para
+   evitar layout shift acá (sí importaría en una imagen de contenido). */
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+.icon-md {
+  width: 18px;
+  height: 18px;
+}
+.icon-lg {
+  width: 20px;
+  height: 20px;
+}

@@ -220,8 +220,7 @@ function crearBotonLapiz(aria, onClick) {
   const img = document.createElement('img');
   img.src = 'images/edit.svg';
   img.alt = '';
-  img.width = 18;
-  img.height = 18;
+  img.className = 'icon-md';
   btn.append(img);
   btn.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
   return btn;
@@ -281,7 +280,9 @@ function confirmar(mensaje, onConfirmar) {
 }
 
 // Arma la barra "Seleccionar todos / Eliminar" dentro de `contenedor`.
-function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, onTodos, onEliminar }) {
+// idCheckTodos: id único del checkbox "todos" (la barra de listas y la de
+// tareas pueden estar visibles a la vez, así que no puede ser un id fijo).
+function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, onTodos, onEliminar, idCheckTodos }) {
   contenedor.replaceChildren();
   contenedor.classList.toggle('d-none', !visible);
   if (!visible) return;
@@ -289,25 +290,33 @@ function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, o
   const fila = document.createElement('div');
   fila.className = 'd-flex gap-2';
 
-  const btnTodos = document.createElement('button');
-  btnTodos.type = 'button';
-  btnTodos.className = 'btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 flex-grow-1';
-  const imgTodos = document.createElement('img');
-  imgTodos.src = todosMarcados ? 'images/check_box_selected.svg' : 'images/check_box_outline_blank.svg';
-  imgTodos.alt = ''; imgTodos.width = 16; imgTodos.height = 16;
-  btnTodos.append(imgTodos, document.createTextNode(textTodos));
-  btnTodos.addEventListener('click', onTodos);
+  const filaTodos = document.createElement('div');
+  filaTodos.className = 'btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 flex-grow-1';
+
+  const checkTodos = document.createElement('input');
+  checkTodos.type = 'checkbox';
+  checkTodos.id = idCheckTodos;
+  checkTodos.className = 'check-custom';
+  checkTodos.checked = todosMarcados;
+  checkTodos.addEventListener('change', onTodos);
+
+  const labelTodos = document.createElement('label');
+  labelTodos.htmlFor = idCheckTodos;
+  labelTodos.className = 'flex-grow-1';
+  labelTodos.textContent = textTodos;
+
+  filaTodos.append(checkTodos, labelTodos);
 
   const btnEliminar = document.createElement('button');
   btnEliminar.type = 'button';
   btnEliminar.className = 'btn btn-danger btn-sm d-flex align-items-center gap-2';
   const imgDel = document.createElement('img');
   imgDel.src = 'images/delete.svg';
-  imgDel.alt = ''; imgDel.width = 16; imgDel.height = 16;
+  imgDel.alt = ''; imgDel.className = 'icon-sm';
   btnEliminar.append(imgDel, document.createTextNode('Eliminar'));
   btnEliminar.addEventListener('click', onEliminar);
 
-  fila.append(btnTodos, btnEliminar);
+  fila.append(filaTodos, btnEliminar);
   contenedor.append(fila);
 }
 
@@ -415,15 +424,13 @@ function crearFormTarea() {
 
   const boton = document.createElement('button');
   boton.type = 'submit';
-  boton.className = 'btn btn-primary d-flex align-items-center justify-content-center px-3 rounded-3';
-  boton.setAttribute('aria-label', 'Agregar tarea');
+  boton.className = 'btn btn-primary d-flex align-items-center justify-content-center gap-2 px-3 rounded-3';
 
   const icono = document.createElement('img');
   icono.src = 'images/add.svg';
   icono.alt = '';
-  icono.width = 20;
-  icono.height = 20;
-  boton.append(icono);
+  icono.className = 'icon-lg';
+  boton.append(document.createTextNode('Añadir'), icono);
 
   // Mensaje de error debajo del input (la fila es d-flex, así que el <p> va
   // como hijo del form, no de la fila). Se togglea a mano con .d-none.
@@ -513,17 +520,15 @@ listasSidebar.addEventListener('click', (e) => {
 });
 
 // ===================================================================
-// Lista de tareas: marcar/desmarcar y borrar (sobre la lista activa)
+// Lista de tareas: borrar (sobre la lista activa).
+// Marcar/desmarcar como completada ya no pasa por acá: lo maneja el propio
+// checkbox en su 'change', dentro de renderTareas().
 // ===================================================================
 listaTareas.addEventListener('click', (e) => {
   const boton = e.target.closest('button[data-accion]');
   if (!boton || !gestor.listaActiva) return;
 
   const id = Number(boton.dataset.id);
-  if (boton.dataset.accion === 'alternar') {
-    gestor.listaActiva.alternarTarea(id);
-    render();
-  }
   if (boton.dataset.accion === 'borrar') {
     const tarea = gestor.listaActiva.tareas.find((t) => t.id === id);
     if (tarea) {
@@ -567,7 +572,8 @@ function renderSidebar() {
     todosMarcados: todasListasMarcadas,
     textTodos: todasListasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
     onTodos: toggleTodasListas,
-    onEliminar: eliminarListasSeleccionadas
+    onEliminar: eliminarListasSeleccionadas,
+    idCheckTodos: 'check-todos-listas',
   });
 
   gestor.listasFiltradas(filtroActivo).forEach((lista) => {
@@ -580,31 +586,24 @@ function renderSidebar() {
       fila.className = `${base} ${relleno} d-flex align-items-center gap-2`;
       fila.dataset.id = lista.id;
 
-      const selectBtn = document.createElement('button');
-      selectBtn.type = 'button';
-      selectBtn.className = 'btn p-0 border-0 flex-shrink-0';
-      const selectIcon = document.createElement('img');
-      const estaSeleccionada = listasSeleccionadas.has(lista.id);
-      selectIcon.src = estaSeleccionada ? 'images/check_box_selected.svg' : 'images/check_box_outline_blank.svg';
-      selectIcon.alt = '';
-      selectIcon.width = 22;
-      selectIcon.height = 22;
-      selectBtn.append(selectIcon);
-      selectBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (estaSeleccionada) {
-          listasSeleccionadas.delete(lista.id);
-        } else {
-          listasSeleccionadas.add(lista.id);
-        }
+      const idCheck = `check-lista-${lista.id}`;
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = idCheck;
+      checkbox.className = 'check-custom';
+      checkbox.checked = listasSeleccionadas.has(lista.id);
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) listasSeleccionadas.add(lista.id);
+        else listasSeleccionadas.delete(lista.id);
         render();
       });
 
-      const nombre = document.createElement('span');
+      const nombre = document.createElement('label');
+      nombre.htmlFor = idCheck;
       nombre.className = 'flex-grow-1 text-truncate';
       nombre.textContent = lista.nombre;
 
-      fila.append(selectBtn, nombre);
+      fila.append(checkbox, nombre);
       listasSidebar.append(fila);
       return;
     }
@@ -679,7 +678,8 @@ function renderPanel() {
     todosMarcados: todasTareasMarcadas,
     textTodos: todasTareasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
     onTodos: toggleTodasTareas,
-    onEliminar: eliminarTareasSeleccionadas
+    onEliminar: eliminarTareasSeleccionadas,
+    idCheckTodos: 'check-todos-tareas',
   });
 
   renderTareas();
@@ -702,44 +702,35 @@ function renderTareas() {
     li.className = 'list-group-item bg-body border rounded-3 d-flex align-items-center gap-3';
 
     if (modoSeleccion) {
-      const selectBtn = document.createElement('button');
-      selectBtn.type = 'button';
-      selectBtn.className = 'btn p-0 border-0 flex-shrink-0';
-      const selectIcon = document.createElement('img');
-      const estaSeleccionada = tareasSeleccionadas.has(tarea.id);
-      selectIcon.src = estaSeleccionada ? 'images/check_box_selected.svg' : 'images/check_box_outline_blank.svg';
-      selectIcon.alt = '';
-      selectIcon.width = 22;
-      selectIcon.height = 22;
-      selectBtn.append(selectIcon);
-      selectBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (estaSeleccionada) {
-          tareasSeleccionadas.delete(tarea.id);
-        } else {
-          tareasSeleccionadas.add(tarea.id);
-        }
+      const idCheck = `check-select-tarea-${tarea.id}`;
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = idCheck;
+      checkbox.className = 'check-custom';
+      checkbox.checked = tareasSeleccionadas.has(tarea.id);
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) tareasSeleccionadas.add(tarea.id);
+        else tareasSeleccionadas.delete(tarea.id);
         render();
       });
-      li.append(selectBtn);
+      li.append(checkbox);
 
-      const contenido = document.createElement('span');
+      const contenido = document.createElement('label');
+      contenido.htmlFor = idCheck;
       contenido.className = 'flex-grow-1';
       contenido.textContent = tarea.descripcion;
       li.append(contenido);
     } else {
-      const check = document.createElement('button');
-      check.type = 'button';
-      check.className = 'btn p-0 border-0 flex-shrink-0';
-      check.dataset.accion = 'alternar';
-      check.dataset.id = tarea.id;
-      check.setAttribute('aria-label', tarea.completada ? 'Marcar como pendiente' : 'Marcar como completada');
-      const iconoCheck = document.createElement('img');
-      iconoCheck.src = tarea.completada ? 'images/check_box_completed.svg' : 'images/check_box_outline_blank.svg';
-      iconoCheck.alt = '';
-      iconoCheck.width = 22;
-      iconoCheck.height = 22;
-      check.append(iconoCheck);
+      const idCheck = `check-completar-${tarea.id}`;
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.id = idCheck;
+      check.className = 'check-custom check-completar flex-shrink-0';
+      check.checked = tarea.completada;
+      check.addEventListener('change', () => {
+        gestor.listaActiva.alternarTarea(tarea.id);
+        render();
+      });
 
       // Texto de la tarea, o input de renombre si esta tarea se está editando.
       let contenido;
@@ -762,7 +753,10 @@ function renderTareas() {
         });
         li.append(btnConfirmar);
       } else {
-        contenido = document.createElement('span');
+        // <label for> asociado al checkbox: clickear el texto también
+        // marca/desmarca la tarea como completada.
+        contenido = document.createElement('label');
+        contenido.htmlFor = idCheck;
         contenido.className = 'flex-grow-1';   // sin tachado: la completada se
         contenido.textContent = tarea.descripcion;   // distingue solo por el icono
         li.append(check, contenido);
@@ -786,8 +780,7 @@ function renderTareas() {
       const iconoBorrar = document.createElement('img');
       iconoBorrar.src = 'images/delete.svg';
       iconoBorrar.alt = '';
-      iconoBorrar.width = 20;
-      iconoBorrar.height = 20;
+      iconoBorrar.className = 'icon-lg';
       borrar.append(iconoBorrar);
 
       li.append(borrar);

@@ -84,7 +84,6 @@
           <!-- Sección de tareas: filtros, agregar tarea y la lista.
                js/app.js la oculta (d-none) cuando no hay ninguna lista. -->
           <section id="seccion-tareas" class="d-none">
-            <h4 class="h5 fw-semibold mb-3">Tareas</h4>
 
             <!-- Filtros: componente Nav de Bootstrap (nav-pills).
                  nav-justified  -> las tres del mismo ancho.
@@ -114,7 +113,9 @@
             </div>
 
             <!-- El form de agregar tarea lo arma js/app.js acá dentro. -->
-            <div id="contenedor-form-tarea"></div>
+            <div id="contenedor-form-tarea">
+              <h4 class="h5 fw-semibold mb-3">Tus tareas</h4>
+            </div>
 
             <!-- Barra "Seleccionar todos / Eliminar" de tareas: la arma
                  js/app.js solo en modo "Seleccionar". -->

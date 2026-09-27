@@ -624,17 +624,18 @@ function renderSidebar() {
       return;
     }
 
-    // Modo normal: botón que selecciona la lista al clickearlo, dentro de su <li>.
+    // Modo normal: enlace que navega a la lista, dentro de su <li>.
     const item = document.createElement('li');
     item.className = 'd-flex';
 
-    const boton = document.createElement('button');
-    boton.type = 'button';
-    boton.className = `${base} list-group-item-action text-start w-100 ${relleno}`;
-    boton.dataset.id = lista.id;
-    boton.textContent = lista.nombre;
+    const enlace = document.createElement('a');
+    enlace.href = `#lista-${lista.id}`;
+    enlace.className = `${base} list-group-item-action w-100 ${relleno}`;
+    enlace.dataset.id = lista.id;
+    enlace.textContent = lista.nombre;
+    if (esActiva) enlace.setAttribute('aria-current', 'page');
 
-    item.append(boton);
+    item.append(enlace);
     listasSidebar.append(item);
   });
 }

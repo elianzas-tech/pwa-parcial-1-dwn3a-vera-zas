@@ -150,8 +150,16 @@ const btnEditar = document.getElementById('btn-editar-listas');
 const barraSeleccionListas = document.getElementById('barra-seleccion-listas');
 
 // Panel principal
-const tituloLista = document.getElementById('titulo-lista-actual');
-const fechaActual = document.getElementById('fecha-actual');
+const encabezadoLista = document.getElementById('encabezado-lista');
+
+// Título de la lista activa y fecha: los crea el JS y los mete en #encabezado-lista.
+const tituloLista = document.createElement('h3');
+tituloLista.className = 'h4 fw-bold mb-1';
+
+const fechaActual = document.createElement('p');
+fechaActual.className = 'small text-body-secondary mb-0';
+
+const seccionTareas = document.getElementById('seccion-tareas');
 const listaTareas = document.getElementById('lista-tareas');
 const estadoSinListas = document.getElementById('estado-sin-listas');
 const estadoVacio = document.getElementById('estado-vacio');
@@ -194,6 +202,7 @@ function mostrarFecha() {
     weekday: 'long', day: 'numeric', month: 'long',
   });
   fechaActual.textContent = hoy.charAt(0).toUpperCase() + hoy.slice(1);
+  encabezadoLista.append(fechaActual);
 }
 
 function mostrarAviso(mensaje) {
@@ -266,9 +275,7 @@ function confirmar(mensaje, onConfirmar) {
 }
 
 // Arma la barra "Seleccionar todos / Eliminar" dentro de `contenedor`.
-// idCheckTodos: id único del checkbox "todos" (la barra de listas y la de
-// tareas pueden estar visibles a la vez, así que no puede ser un id fijo).
-function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, onTodos, onEliminar, idCheckTodos }) {
+function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, onTodos, onEliminar }) {
   contenedor.replaceChildren();
   contenedor.classList.toggle('d-none', !visible);
   if (!visible) return;
@@ -276,22 +283,17 @@ function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, o
   const fila = document.createElement('div');
   fila.className = 'd-flex gap-2';
 
-  const filaTodos = document.createElement('div');
-  filaTodos.className = 'btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 flex-grow-1';
+  // El checkbox va dentro del <label>: clickear en cualquier parte lo tilda.
+  const filaTodos = document.createElement('label');
+  filaTodos.className = 'btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 flex-grow-1 text-start';
 
   const checkTodos = document.createElement('input');
   checkTodos.type = 'checkbox';
-  checkTodos.id = idCheckTodos;
   checkTodos.className = 'check-custom';
   checkTodos.checked = todosMarcados;
   checkTodos.addEventListener('change', onTodos);
 
-  const labelTodos = document.createElement('label');
-  labelTodos.htmlFor = idCheckTodos;
-  labelTodos.className = 'flex-grow-1';
-  labelTodos.textContent = textTodos;
-
-  filaTodos.append(checkTodos, labelTodos);
+  filaTodos.append(checkTodos, document.createTextNode(textTodos));
 
   const btnEliminar = document.createElement('button');
   btnEliminar.type = 'button';
@@ -389,7 +391,7 @@ entradaNuevaLista.addEventListener('input', limpiarErrorLista);
 function crearFormTarea() {
   const form = document.createElement('form');
   form.id = 'form-nueva-tarea';
-  form.className = 'mb-4 d-none';
+  form.className = 'mb-4';
 
   const label = document.createElement('label');
   label.className = 'form-label mb-1';
@@ -551,7 +553,6 @@ function renderSidebar() {
     textTodos: todasListasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
     onTodos: toggleTodasListas,
     onEliminar: eliminarListasSeleccionadas,
-    idCheckTodos: 'check-todos-listas',
   });
 
    gestor.listas.forEach((lista) => {
@@ -560,7 +561,7 @@ function renderSidebar() {
     const relleno = esActiva ? 'active fw-semibold' : 'bg-transparent';
 
     if (modoSeleccion) {
-      const fila = document.createElement('div');
+      const fila = document.createElement('li');
       fila.className = `${base} ${relleno} d-flex align-items-center gap-2`;
       fila.dataset.id = lista.id;
 
@@ -587,9 +588,9 @@ function renderSidebar() {
     }
 
     // Modo edición: fila con lápiz (o input de renombre si esta lista se
-    // está editando). Es un <div>, no un <button>, para poder meter el input.
+    // está editando). Es un <li>, no un <button>, para poder meter el input.
     if (modoEdicion) {
-      const fila = document.createElement('div');
+      const fila = document.createElement('li');
       fila.className = `${base} ${relleno} d-flex align-items-center gap-2`;
       fila.dataset.id = lista.id;
 
@@ -623,23 +624,34 @@ function renderSidebar() {
       return;
     }
 
-    // Modo normal: botón que selecciona la lista al clickearlo.
+    // Modo normal: botón que selecciona la lista al clickearlo, dentro de su <li>.
+    const item = document.createElement('li');
+    item.className = 'd-flex';
+
     const boton = document.createElement('button');
     boton.type = 'button';
-    boton.className = `${base} list-group-item-action text-start ${relleno}`;
+    boton.className = `${base} list-group-item-action text-start w-100 ${relleno}`;
     boton.dataset.id = lista.id;
     boton.textContent = lista.nombre;
-    listasSidebar.append(boton);
+
+    item.append(boton);
+    listasSidebar.append(item);
   });
 }
 
 function renderPanel() {
   const lista = gestor.listaActiva;
 
-  // El form de agregar tarea solo aparece si hay una lista activa.
-  formTarea.classList.toggle('d-none', !lista);
+  // La sección de tareas (filtros, form y lista) solo aparece si hay una lista activa.
+  seccionTareas.classList.toggle('d-none', !lista);
 
-  tituloLista.textContent = lista ? lista.nombre : '';
+  // El título solo existe en la página si hay una lista activa.
+  if (lista) {
+    tituloLista.textContent = lista.nombre;
+    encabezadoLista.prepend(tituloLista);
+  } else {
+    tituloLista.remove();
+  }
 
   const total = lista ? lista.contarTotal() : 0;
   const pendientes = lista ? lista.contarPendientes() : 0;
@@ -657,7 +669,6 @@ function renderPanel() {
     textTodos: todasTareasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
     onTodos: toggleTodasTareas,
     onEliminar: eliminarTareasSeleccionadas,
-    idCheckTodos: 'check-todos-tareas',
   });
 
   renderTareas();

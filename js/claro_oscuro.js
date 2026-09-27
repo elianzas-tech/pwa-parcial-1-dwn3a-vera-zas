@@ -10,13 +10,13 @@
 
 const raizTema  = document.documentElement; // <html>, ahi vive data-bs-theme
 const btnTema   = document.getElementById('btn-tema');
-const iconoTema = btnTema.querySelector('img');
+const iconoTema = btnTema.querySelector('path');
 const textoTema = document.getElementById('texto-tema');
 
 function aplicarTema(tema) {
   const esOscuro = tema === 'dark';
   raizTema.setAttribute('data-bs-theme', tema);
-  iconoTema.src = esOscuro ? 'images/mode_night.svg' : 'images/mode_light.svg';
+  iconoTema.setAttribute('d', esOscuro ? ICONOS.modoOscuro : ICONOS.modoClaro);
   // El texto muestra el tema ACTUAL, no la accion: "Oscuro" en oscuro, "Claro" en claro.
   textoTema.textContent = esOscuro ? 'Oscuro' : 'Claro';
 }

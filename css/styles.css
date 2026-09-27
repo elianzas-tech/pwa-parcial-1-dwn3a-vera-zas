@@ -105,7 +105,7 @@
 
 /* Checkbox real (input type="checkbox"), pintado con los mismos SVG que
    antes se mostraban con <img>. appearance: none saca el tilde nativo del
-   navegador para poder dibujar el ícono nosotros vía background-image. */
+   navegador para poder dibujar el ícono nosotros vía mask-image. */
 .check-custom {
   appearance: none;
   -webkit-appearance: none;
@@ -114,15 +114,22 @@
   margin: 0;
   flex-shrink: 0;
   cursor: pointer;
-  background: url('../images/check_box_outline_blank.svg') no-repeat center / contain;
+  /* El SVG se usa como máscara (la forma) y el color lo pone
+     background-color: así sigue al color del texto en claro y oscuro. */
+  background-color: currentColor;
+  -webkit-mask: url('../images/check_box_outline_blank.svg') no-repeat center / contain;
+  mask: url('../images/check_box_outline_blank.svg') no-repeat center / contain;
 }
 .check-custom:checked {
-  background-image: url('../images/check_box_selected.svg');
+  -webkit-mask-image: url('../images/check_box_selected.svg');
+  mask-image: url('../images/check_box_selected.svg');
 }
 
-/* El check de "completada" usa un ícono distinto al marcarse. */
+/* El check de "completada" usa un ícono distinto al marcarse, en verde. */
 .check-custom.check-completar:checked {
-  background-image: url('../images/check_box_completed.svg');
+  -webkit-mask-image: url('../images/check_box_completed.svg');
+  mask-image: url('../images/check_box_completed.svg');
+  background-color: #2ECC71;
 }
 
 /* El <label> asociado (for=...) al checkbox también muestra la manito:
@@ -151,4 +158,7 @@
 .icon-lg {
   width: 20px;
   height: 20px;
+}
+.icon-sm, .icon-md, .icon-lg{
+  fill: currentColor;
 }

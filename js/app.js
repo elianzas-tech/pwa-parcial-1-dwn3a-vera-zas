@@ -201,17 +201,13 @@ function mostrarAviso(mensaje) {
   bsToastAviso.show();
 }
 
-// Botón de lápiz (edit.svg): abre el input de renombre.
+// Botón de lápiz (icono editar): abre el input de renombre.
 function crearBotonLapiz(aria, onClick) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'btn p-0 border-0 flex-shrink-0';
   btn.setAttribute('aria-label', aria);
-  const img = document.createElement('img');
-  img.src = 'images/edit.svg';
-  img.alt = '';
-  img.className = 'icon-md';
-  btn.append(img);
+  btn.append(crearIcono('editar', 'icon-md'));
   btn.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
   return btn;
 }
@@ -300,10 +296,7 @@ function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, o
   const btnEliminar = document.createElement('button');
   btnEliminar.type = 'button';
   btnEliminar.className = 'btn btn-danger btn-sm d-flex align-items-center gap-2';
-  const imgDel = document.createElement('img');
-  imgDel.src = 'images/delete.svg';
-  imgDel.alt = ''; imgDel.className = 'icon-sm';
-  btnEliminar.append(imgDel, document.createTextNode('Eliminar'));
+  btnEliminar.append(crearIcono('eliminar', 'icon-sm'), document.createTextNode('Eliminar'));
   btnEliminar.addEventListener('click', onEliminar);
 
   fila.append(filaTodos, btnEliminar);
@@ -416,11 +409,7 @@ function crearFormTarea() {
   boton.type = 'submit';
   boton.className = 'btn btn-primary d-flex align-items-center justify-content-center gap-2 px-3 rounded-3';
 
-  const icono = document.createElement('img');
-  icono.src = 'images/add.svg';
-  icono.alt = '';
-  icono.className = 'icon-lg';
-  boton.append(document.createTextNode('Añadir'), icono);
+  boton.append(document.createTextNode('Añadir'), crearIcono('agregar', 'icon-lg'));
 
   // Mensaje de error debajo del input (la fila es d-flex, así que el <p> va
   // como hijo del form, no de la fila). Se togglea a mano con .d-none.
@@ -766,11 +755,7 @@ function renderTareas() {
       borrar.dataset.accion = 'borrar';
       borrar.dataset.id = tarea.id;
       borrar.setAttribute('aria-label', 'Eliminar tarea');
-      const iconoBorrar = document.createElement('img');
-      iconoBorrar.src = 'images/delete.svg';
-      iconoBorrar.alt = '';
-      iconoBorrar.className = 'icon-lg';
-      borrar.append(iconoBorrar);
+      borrar.append(crearIcono('eliminar', 'icon-lg'));
 
       li.append(borrar);
     }

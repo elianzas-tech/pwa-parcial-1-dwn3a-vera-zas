@@ -101,16 +101,6 @@ class GestorListas {
   get listas() { return [...this.#listas]; }
   get hayListas() { return this.#listas.length > 0; }
 
-  listasFiltradas(filtro) {
-    if (filtro === 'pending') {
-      return this.#listas.filter((l) => l.contarPendientes() > 0);
-    }
-    if (filtro === 'completed') {
-      return this.#listas.filter((l) => l.contarCompletadas() > 0);
-    }
-    return this.listas; // 'all'
-  }
-
   get listaActiva() {
     return this.#listas.find((l) => l.id === this.#idListaActiva) ?? null;
   }
@@ -515,7 +505,6 @@ listasSidebar.addEventListener('click', (e) => {
   const boton = e.target.closest('.list-group-item');
   if (!boton) return;
   gestor.seleccionarLista(Number(boton.dataset.id));
-  filtroActivo = 'all';
   render();
 });
 
@@ -576,7 +565,7 @@ function renderSidebar() {
     idCheckTodos: 'check-todos-listas',
   });
 
-  gestor.listasFiltradas(filtroActivo).forEach((lista) => {
+   gestor.listas.forEach((lista) => {
     const esActiva = lista.id === gestor.listaActiva?.id;
     const base = 'list-group-item rounded-3 border';
     const relleno = esActiva ? 'active fw-semibold' : 'bg-transparent';

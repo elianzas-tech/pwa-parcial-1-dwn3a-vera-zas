@@ -143,7 +143,11 @@ class GestorListas {
 // Sidebar
 const listasSidebar = document.getElementById('listas-sidebar');
 const formNuevaLista = document.getElementById('form-nueva-lista');
+
 const entradaNuevaLista = document.getElementById('entrada-nueva-lista');
+entradaNuevaLista.setAttribute('aria-invalid', 'true');
+entradaNuevaLista.setAttribute('aria-describedby', 'error-nueva-lista');
+
 const errorNuevaLista = document.getElementById('error-nueva-lista');
 const btnSeleccionar = document.getElementById('btn-seleccionar-listas');
 const btnEditar = document.getElementById('btn-editar-listas');
@@ -406,6 +410,8 @@ function crearFormTarea() {
   input.id = 'entrada-tarea';
   input.className = 'form-control';
   input.autocomplete = 'off';
+  input.ariaInvalid = true;
+  input.setAttribute('aria-describedby', 'error-nueva-tarea');
 
   const boton = document.createElement('button');
   boton.type = 'submit';
@@ -417,6 +423,7 @@ function crearFormTarea() {
   // como hijo del form, no de la fila). Se togglea a mano con .d-none.
   const error = document.createElement('p');
   error.className = 'text-danger small mt-1 mb-0 d-none';
+  error.id = 'error-nueva-tarea';
   error.textContent = 'La tarea no puede estar vacía';
 
   fila.append(input, boton);

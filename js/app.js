@@ -248,8 +248,11 @@ function crearInputRenombre(valorInicial, onGuardar, onCancelar) {
   });
   input.addEventListener('blur', () => {
     const valor = input.value.trim();
-    if (input.dataset.cancelar || valor === '') onCancelar();
-    else onGuardar(valor);
+    if (input.dataset.cancelar || valor === ''){ 
+      onCancelar();
+    } else { 
+      onGuardar(valor); 
+    }
   });
 
   // Foco una vez insertado en el DOM.
@@ -307,8 +310,11 @@ function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, o
 
 function toggleTodasListas() {
   const ids = gestor.listas.map((l) => l.id);
-  if (listasSeleccionadas.size === ids.length) listasSeleccionadas.clear();
-  else ids.forEach((id) => listasSeleccionadas.add(id));
+  if (listasSeleccionadas.size === ids.length){
+    listasSeleccionadas.clear();
+  } else {
+    ids.forEach((id) => listasSeleccionadas.add(id));
+  }
   render();
 }
 
@@ -316,8 +322,11 @@ function toggleTodasTareas() {
   const lista = gestor.listaActiva;
   if (!lista) return;
   const ids = lista.tareas.map((t) => t.id);
-  if (ids.length > 0 && tareasSeleccionadas.size === ids.length) tareasSeleccionadas.clear();
-  else ids.forEach((id) => tareasSeleccionadas.add(id));
+  if (ids.length > 0 && tareasSeleccionadas.size === ids.length){
+    tareasSeleccionadas.clear();
+  } else {
+    ids.forEach((id) => tareasSeleccionadas.add(id));
+  } 
   render();
 }
 

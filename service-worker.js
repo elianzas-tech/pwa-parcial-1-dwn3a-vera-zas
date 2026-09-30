@@ -1,5 +1,5 @@
-const PRE_CACHE_NOMBRE = "pre-cacahe-v1";
-const DIN_CACHE_NOMBRE = "din-cacahe-v1";
+const PRE_CACHE_NOMBRE = "pre-cacahe-v1.5";
+const DIN_CACHE_NOMBRE = "din-cacahe-v1.5";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',
@@ -7,14 +7,9 @@ const PRE_CACHE_RECURSOS = [
     './css/styles.css',
     './js/app.js',
     './js/claro_oscuro.js',
-    './images/add.svg',
     './images/check_box_completed.svg',
     './images/check_box_outline_blank.svg',
     './images/check_box_selected.svg',
-    './images/delete.svg',
-    './images/edit.svg',
-    './images/mode_light.svg',
-    './images/mode_night.svg',
     //BOOTSTRAP CDN
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
 ]

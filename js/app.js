@@ -37,6 +37,14 @@ class Tarea {
 
   get completada() { return this.#completada; }
   set completada(valor) { this.#completada = valor; }
+  
+  alternarCompletada() {
+    this.completada = !this.completada; 
+  }
+
+  renombrarDescripcion(nuevaDescripcion) {
+    this.descripcion = nuevaDescripcion; 
+  }
 }
 
 // Una lista, con sus tareas adentro.
@@ -74,12 +82,13 @@ class Lista {
 
   alternarTarea(id) {
     const tarea = this.#tareas.find((t) => t.id === id);
-    if (tarea) tarea.completada = !tarea.completada;
+    if (tarea) tarea.alternarCompletada();
+    /* if (tarea) tarea.completada = !tarea.completada; */
   }
 
   renombrarTarea(id, descripcion) {
     const tarea = this.#tareas.find((t) => t.id === id);
-    if (tarea) tarea.descripcion = descripcion;
+    if (tarea) tarea.renombrarDescripcion(descripcion);
   }
 
   contarTotal() { return this.#tareas.length; }

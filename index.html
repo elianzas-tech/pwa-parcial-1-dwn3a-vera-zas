@@ -147,8 +147,11 @@
     </div>
   </div>
 
-  <!-- Contenedor de avisos (toasts). El texto lo pone js/app.js. -->
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <!-- Contenedor de avisos (toasts). El texto lo pone js/app.js.
+       Ocupa todo el ancho de abajo y alinea los toasts: centrados en mobile
+       (al alcance del pulgar) y a la derecha desde lg. Bootstrap le pone
+       pointer-events: none, así que no bloquea los clics de la página. -->
+  <div class="toast-container position-fixed bottom-0 start-0 w-100 p-3 d-flex flex-column align-items-center align-items-lg-end">
     <div id="toast-aviso" class="toast text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <p id="toast-aviso-texto" class="toast-body mb-0"></p>

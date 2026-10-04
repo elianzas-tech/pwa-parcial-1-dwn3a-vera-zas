@@ -72,12 +72,15 @@ class Lista {
     this.#tareas.push(new Tarea(descripcion));
   }
 
-  eliminarTarea(id) {
-    this.#tareas = this.#tareas.filter((t) => t.id !== id);
-  }
-
   eliminarTareas(ids) {
     this.#tareas = this.#tareas.filter((t) => !ids.includes(t.id));
+  }
+
+  // Vuelve a un estado anterior de las tareas ("Deshacer"). Las tareas
+  // agregadas después de ese estado se conservan al final.
+  restaurarTareas(tareas) {
+    const nuevas = this.#tareas.filter((t) => !tareas.includes(t));
+    this.#tareas = [...tareas, ...nuevas];
   }
 
   alternarTarea(id) {
@@ -143,6 +146,14 @@ class GestorListas {
       this.#idListaActiva = this.#listas[0]?.id ?? null;
     }
   }
+
+  // Vuelve a un estado anterior de las listas ("Deshacer"), incluida la
+  // lista activa. Las listas creadas después de ese estado se conservan al final.
+  restaurarListas(listas, idActiva) {
+    const nuevas = this.#listas.filter((l) => !listas.includes(l));
+    this.#listas = [...listas, ...nuevas];
+    this.#idListaActiva = idActiva;
+  }
 }
 
 // ===================================================================
@@ -158,7 +169,8 @@ entradaNuevaLista.setAttribute('aria-invalid', 'true');
 entradaNuevaLista.setAttribute('aria-describedby', 'error-nueva-lista');
 
 const errorNuevaLista = document.getElementById('error-nueva-lista');
-const btnSeleccionar = document.getElementById('btn-seleccionar-listas');
+const btnSeleccionarListas = document.getElementById('btn-seleccionar-listas');
+const btnSeleccionarTareas = document.getElementById('btn-seleccionar-tareas');
 const btnEditar = document.getElementById('btn-editar-listas');
 const barraSeleccionListas = document.getElementById('barra-seleccion-listas');
 
@@ -190,11 +202,11 @@ const toastAviso = document.getElementById('toast-aviso');
 const toastAvisoTexto = document.getElementById('toast-aviso-texto');
 const bsToastAviso = bootstrap.Toast.getOrCreateInstance(toastAviso);
 
-// Modal de confirmación (borrados masivos)
-const modalConfirmarEl = document.getElementById('modal-confirmar');
-const bsModalConfirmar = bootstrap.Modal.getOrCreateInstance(modalConfirmarEl);
-const modalConfirmarTxt = document.getElementById('modal-confirmar-texto');
-const btnModalConfirmar = document.getElementById('modal-confirmar-ok');
+// Toast de "Deshacer" (eliminar tareas y listas)
+const toastDeshacer = document.getElementById('toast-deshacer');
+const toastDeshacerTexto = document.getElementById('toast-deshacer-texto');
+const btnDeshacer = document.getElementById('toast-deshacer-btn');
+const bsToastDeshacer = bootstrap.Toast.getOrCreateInstance(toastDeshacer);
 
 // ===================================================================
 // Estado
@@ -206,7 +218,9 @@ let modoEdicion = false;    // "Editar" -> aparecen los lápices
 let editandoLista = null;   // id de la lista con el input de renombre abierto
 let editandoTarea = null;   // id de la tarea con el input de renombre abierto
 
-let modoSeleccion = false;             // "Seleccionar" -> checkboxes
+// Cada zona tiene su propio selector: se pueden usar por separado.
+let modoSeleccionListas = false;       // "Seleccionar" del sidebar -> checkboxes en listas
+let modoSeleccionTareas = false;       // "Seleccionar" del panel -> checkboxes en tareas
 const listasSeleccionadas = new Set(); // ids de listas tildadas
 const tareasSeleccionadas = new Set(); // ids de tareas tildadas
 
@@ -222,6 +236,67 @@ function mostrarAviso(mensaje) {
   toastAvisoTexto.textContent = mensaje;
   bsToastAviso.show();
 }
+
+// Eliminar sin modal: se borra al toque y el toast ofrece "Deshacer".
+// Mientras el toast está abierto, los borrados del mismo origen se agrupan
+// en un lote: el texto suma la cantidad y "Deshacer" los devuelve todos.
+let lote = null; // { origen, cantidad, restaurar }
+
+btnDeshacer.addEventListener('click', () => {
+  if (!lote) return;
+  lote.restaurar();
+  lote = null;
+  bsToastDeshacer.hide();
+  render();
+});
+
+// Al cerrarse el toast (solo o con la X) el lote termina.
+toastDeshacer.addEventListener('hidden.bs.toast', () => { lote = null; });
+
+// Suma un borrado al lote abierto, o abre uno nuevo si cambió el origen
+// (otra lista de tareas, o pasar de tareas a listas). `restaurar` solo se
+// guarda al abrir el lote: vuelve a la foto de antes del primer borrado.
+function avisarBorrado(origen, restaurar, nombres, palabra) {
+  if (!lote || lote.origen !== origen) {
+    lote = { origen, cantidad: 0, restaurar };
+  }
+  lote.cantidad += nombres.length;
+
+  const Palabra = palabra.charAt(0).toUpperCase() + palabra.slice(1);
+  toastDeshacerTexto.textContent = lote.cantidad === 1
+    ? `${Palabra} "${nombres[0]}" eliminada`
+    : `${lote.cantidad} ${palabra}s eliminadas`;
+  bsToastDeshacer.show();
+}
+
+function eliminarTareasConDeshacer(lista, ids) {
+  const borradas = lista.tareas.filter((t) => ids.includes(t.id));
+  if (borradas.length === 0) return;
+
+  const anteriores = lista.tareas; // foto antes de borrar
+  lista.eliminarTareas(ids);
+  render();
+
+  avisarBorrado(lista, () => lista.restaurarTareas(anteriores),
+    borradas.map((t) => t.descripcion), 'tarea');
+}
+
+function eliminarListasConDeshacer(ids) {
+  const borradas = gestor.listas.filter((l) => ids.includes(l.id));
+  if (borradas.length === 0) return;
+
+  const anteriores = gestor.listas; // foto antes de borrar
+  const idActiva = gestor.listaActiva?.id ?? null;
+  gestor.eliminarListas(ids);
+  if (!gestor.hayListas) modoSeleccionListas = false;
+  // Si cambió la lista activa, las tareas tildadas eran de la anterior.
+  if (gestor.listaActiva?.id !== idActiva) tareasSeleccionadas.clear();
+  render();
+
+  avisarBorrado(gestor, () => gestor.restaurarListas(anteriores, idActiva),
+    borradas.map((l) => l.nombre), 'lista');
+}
+
 
 // Botón de lápiz (icono editar): abre el input de renombre.
 function crearBotonLapiz(aria, onClick) {
@@ -276,19 +351,6 @@ function crearInputRenombre(valorInicial, onGuardar, onCancelar) {
 // ===================================================================
 // Selección múltiple + borrado (modo "Seleccionar")
 // ===================================================================
-
-// Abre el modal de confirmación con un mensaje y un callback para el OK.
-function confirmar(mensaje, onConfirmar) {
-  modalConfirmarTxt.textContent = mensaje;
-
-  const handler = () => { bsModalConfirmar.hide(); onConfirmar(); };
-  btnModalConfirmar.addEventListener('click', handler, { once: true });
-  modalConfirmarEl.addEventListener('hidden.bs.modal', () => {
-    btnModalConfirmar.removeEventListener('click', handler);
-  }, { once: true });
-
-  bsModalConfirmar.show();
-}
 
 // Arma la barra "Seleccionar todos / Eliminar" dentro de `contenedor`.
 function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, onTodos, onEliminar }) {
@@ -345,32 +407,17 @@ function toggleTodasTareas() {
 
 function eliminarListasSeleccionadas() {
   if (listasSeleccionadas.size === 0) { mostrarAviso('No seleccionaste ninguna lista'); return; }
-  const todas = listasSeleccionadas.size === gestor.listas.length;
-  confirmar(
-    todas ? '¿Estás seguro de que querés eliminar todas las listas?'
-      : '¿Estás seguro de que querés eliminar estas listas?',
-    () => {
-      gestor.eliminarListas([...listasSeleccionadas]);
-      listasSeleccionadas.clear();
-      if (!gestor.hayListas) modoSeleccion = false;
-      render();
-    },
-  );
+  const ids = [...listasSeleccionadas];
+  listasSeleccionadas.clear();
+  eliminarListasConDeshacer(ids);
 }
 
 function eliminarTareasSeleccionadas() {
   const lista = gestor.listaActiva;
   if (!lista || tareasSeleccionadas.size === 0) { mostrarAviso('No seleccionaste ninguna tarea'); return; }
-  const todas = tareasSeleccionadas.size === lista.contarTotal();
-  confirmar(
-    todas ? '¿Estás seguro de que querés eliminar todas las tareas?'
-      : '¿Estás seguro de que querés eliminar estas tareas?',
-    () => {
-      lista.eliminarTareas([...tareasSeleccionadas]);
-      tareasSeleccionadas.clear();
-      render();
-    },
-  );
+  const ids = [...tareasSeleccionadas];
+  tareasSeleccionadas.clear();
+  eliminarTareasConDeshacer(lista, ids);
 }
 
 // ===================================================================
@@ -482,19 +529,30 @@ contenedorFormTarea.append(formTarea);
 // ===================================================================
 // Botones "Seleccionar" y "Editar"
 // ===================================================================
-btnSeleccionar.addEventListener('click', () => {
-  if (!gestor.hayListas) {
-    mostrarAviso('No hay listas ni tareas para seleccionar');
+// Los estados "active" de los botones se sincronizan en render().
+btnSeleccionarListas.addEventListener('click', () => {
+  if (!modoSeleccionListas && !gestor.hayListas) {
+    mostrarAviso('No hay listas para seleccionar');
     return;
   }
-  modoSeleccion = !modoSeleccion;
+  modoSeleccionListas = !modoSeleccionListas;
   modoEdicion = false;
   editandoLista = null;
   editandoTarea = null;
   listasSeleccionadas.clear();
+  render();
+});
+
+btnSeleccionarTareas.addEventListener('click', () => {
+  if (!modoSeleccionTareas && !gestor.listaActiva?.contarTotal()) {
+    mostrarAviso('No hay tareas para seleccionar');
+    return;
+  }
+  modoSeleccionTareas = !modoSeleccionTareas;
+  modoEdicion = false;
+  editandoLista = null;
+  editandoTarea = null;
   tareasSeleccionadas.clear();
-  btnSeleccionar.classList.toggle('active', modoSeleccion);
-  btnEditar.classList.remove('active');
   render();
 });
 
@@ -504,23 +562,27 @@ btnEditar.addEventListener('click', () => {
     return;
   }
   modoEdicion = !modoEdicion;
-  modoSeleccion = false;
+  modoSeleccionListas = false;
+  modoSeleccionTareas = false;
   editandoLista = null;
   editandoTarea = null;
   listasSeleccionadas.clear();
   tareasSeleccionadas.clear();
-  btnEditar.classList.toggle('active', modoEdicion);
-  btnSeleccionar.classList.remove('active');
   render();
 });
 
 // ===================================================================
-// Sidebar: seleccionar una lista al clickearla
+// Sidebar: abrir una lista al clickearla
 // ===================================================================
 listasSidebar.addEventListener('click', (e) => {
+  // En modo selección el clic es para tildar, no para navegar: si no se
+  // corta acá, el render() destruye el checkbox en medio del clic.
+  if (modoSeleccionListas) return;
   const boton = e.target.closest('.list-group-item');
   if (!boton) return;
   gestor.seleccionarLista(Number(boton.dataset.id));
+  // Las tareas tildadas eran de la lista anterior.
+  tareasSeleccionadas.clear();
   render();
 });
 
@@ -535,16 +597,7 @@ listaTareas.addEventListener('click', (e) => {
 
   const id = Number(boton.dataset.id);
   if (boton.dataset.accion === 'borrar') {
-    const tarea = gestor.listaActiva.tareas.find((t) => t.id === id);
-    if (tarea) {
-      confirmar(
-        `¿Estás seguro de que querés eliminar la tarea "${tarea.descripcion}"?`,
-        () => {
-          gestor.listaActiva.eliminarTarea(id);
-          render();
-        }
-      );
-    }
+    eliminarTareasConDeshacer(gestor.listaActiva, [id]);
   }
 });
 
@@ -560,8 +613,20 @@ function actualizarTabs() {
   });
 }
 
+function actualizarBotonesModo() {
+  [
+    [btnSeleccionarListas, modoSeleccionListas],
+    [btnSeleccionarTareas, modoSeleccionTareas],
+    [btnEditar, modoEdicion],
+  ].forEach(([boton, activo]) => {
+    boton.classList.toggle('active', activo);
+    boton.setAttribute('aria-pressed', activo ? 'true' : 'false');
+  });
+}
+
 function render() {
   actualizarTabs();
+  actualizarBotonesModo();
   estadoSinListas.classList.toggle('d-none', gestor.hayListas);
   renderSidebar();
   renderPanel();
@@ -570,7 +635,7 @@ function render() {
 function renderSidebar() {
   listasSidebar.replaceChildren();
 
-  const mostrarBarraListas = modoSeleccion && gestor.hayListas;
+  const mostrarBarraListas = modoSeleccionListas && gestor.hayListas;
   const todasListasMarcadas = gestor.listas.length > 0 && listasSeleccionadas.size === gestor.listas.length;
   renderBarraSeleccion(barraSeleccionListas, {
     visible: mostrarBarraListas,
@@ -585,7 +650,7 @@ function renderSidebar() {
     const base = 'list-group-item rounded-3 border';
     const relleno = esActiva ? 'active fw-semibold' : 'bg-transparent';
 
-    if (modoSeleccion) {
+    if (modoSeleccionListas) {
       const fila = document.createElement('li');
       fila.className = `${base} ${relleno} d-flex align-items-center gap-2`;
       fila.dataset.id = lista.id;
@@ -687,7 +752,7 @@ function renderPanel() {
   contadores.pending.textContent = pendientes;
   contadores.completed.textContent = completadas;
 
-  const mostrarBarraTareas = modoSeleccion && total > 0;
+  const mostrarBarraTareas = modoSeleccionTareas && total > 0;
   const todasTareasMarcadas = total > 0 && tareasSeleccionadas.size === total;
   renderBarraSeleccion(barraSeleccionTareas, {
     visible: mostrarBarraTareas,
@@ -716,7 +781,7 @@ function renderTareas() {
     const li = document.createElement('li');
     li.className = 'list-group-item bg-body border rounded-3 d-flex align-items-center gap-3';
 
-    if (modoSeleccion) {
+    if (modoSeleccionTareas) {
       const idCheck = `check-select-tarea-${tarea.id}`;
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';

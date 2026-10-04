@@ -84,6 +84,17 @@
   color: #000;
 }
 
+/* Toast "Deshacer": misma superficie que los paneles (bg-body + borde) y
+   una franja del color de acento a la izquierda para que se distinga del
+   fondo. El botón usa el mismo criterio que la lista activa: acento con
+   texto negro (blanco sobre el azul no llega a WCAG AA). */
+#toast-deshacer {
+  border: 1px solid var(--bs-border-color);
+  border-left: 4px solid var(--bs-primary);
+}
+#toast-deshacer-btn {
+  color: #000;
+}
 
 /* En desktop el sidebar se acota al alto de la pantalla (y queda sticky si
    el panel derecho es más largo). Con el navbar de alto fijo, el

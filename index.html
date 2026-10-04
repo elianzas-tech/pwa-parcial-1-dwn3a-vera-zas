@@ -20,10 +20,19 @@
 
           <h1 class="navbar-brand franja-encabezado fs-4 fw-bold w-100 mx-0 d-flex align-items-center justify-content-center border-bottom pb-3 mb-3">LISTAPP</h1>
 
-          <h2 id="titulo-mis-listas" class="small fw-semibold text-uppercase text-body-secondary mb-2">Mis Listas</h2>
+          <!-- Título + selector propio de listas (independiente del de tareas). -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 id="titulo-mis-listas" class="small fw-semibold text-uppercase text-body-secondary mb-0">Mis Listas</h2>
+            <button id="btn-seleccionar-listas" type="button"
+                    class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+                    title="Seleccionar listas" aria-pressed="false">
+              <svg class="icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"/></svg>
+              Seleccionar
+            </button>
+          </div>
 
-          <!-- Barra "Seleccionar todos / Eliminar": la arma js/app.js solo
-               en modo "Seleccionar". -->
+          <!-- Barra "Seleccionar todas / Eliminar": la arma js/app.js solo
+               en modo "Seleccionar listas". -->
           <div id="barra-seleccion-listas" class="mb-2 d-none"></div>
 
           <!-- Las listas las inyecta js/app.js: cada una es un <li>.
@@ -60,9 +69,9 @@
 
             <!-- Controles de la app:-->
             <div class="d-flex flex-wrap gap-2" role="toolbar" aria-label="Controles de la aplicación">
-              <button id="btn-seleccionar-listas" type="button"
+              <button id="btn-seleccionar-tareas" type="button"
                       class="btn btn-outline-secondary d-flex align-items-center gap-2"
-                      title="Seleccionar listas">
+                      title="Seleccionar tareas" aria-pressed="false">
                 <svg class="icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"/></svg>
                 Seleccionar
               </button>
@@ -117,8 +126,8 @@
               <h4 class="h5 fw-semibold mb-3">Tus tareas</h4>
             </div>
 
-            <!-- Barra "Seleccionar todos / Eliminar" de tareas: la arma
-                 js/app.js solo en modo "Seleccionar". -->
+            <!-- Barra "Seleccionar todas / Eliminar" de tareas: la arma
+                 js/app.js solo en modo "Seleccionar tareas". -->
             <div id="barra-seleccion-tareas" class="mb-3 d-none"></div>
 
             <!-- Las tareas las inyecta js/app.js -->
@@ -138,29 +147,24 @@
     </div>
   </div>
 
-  <!-- Contenedor de avisos (toasts). El texto lo pone js/app.js. -->
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <!-- Contenedor de avisos (toasts). El texto lo pone js/app.js.
+       Ocupa todo el ancho de abajo y alinea los toasts: centrados en mobile
+       (al alcance del pulgar) y a la derecha desde lg. Bootstrap le pone
+       pointer-events: none, así que no bloquea los clics de la página. -->
+  <div class="toast-container position-fixed bottom-0 start-0 w-100 p-3 d-flex flex-column align-items-center align-items-lg-end">
     <div id="toast-aviso" class="toast text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <p id="toast-aviso-texto" class="toast-body mb-0"></p>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
       </div>
     </div>
-  </div>
 
-  <!-- Modal de confirmación para borrados masivos. El texto y el onConfirmar
-       los setea js/app.js. -->
-  <div class="modal fade" id="modal-confirmar" tabindex="-1" aria-hidden="true" aria-describedby="modal-confirmar-texto" aria-label="Confirmar eliminación">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <p class="modal-body mb-0" id="modal-confirmar-texto"></p>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" tabindex="-1">Cancelar</button>
-          <button type="button" class="btn btn-danger d-flex align-items-center gap-2" id="modal-confirmar-ok" tabindex="-1">
-            <svg class="icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21C6.45 21 5.97917 20.8042 5.5875 20.4125C5.19583 20.0208 5 19.55 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8042 20.0208 18.4125 20.4125C18.0208 20.8042 17.55 21 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"/></svg>
-            Eliminar
-          </button>
-        </div>
+    <!-- Toast de "tarea/lista eliminada" con opción de deshacer. Lo maneja js/app.js. -->
+    <div id="toast-deshacer" class="toast bg-body shadow" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
+      <div class="d-flex align-items-center gap-2 pe-2">
+        <p id="toast-deshacer-texto" class="toast-body mb-0 flex-grow-1"></p>
+        <button type="button" id="toast-deshacer-btn" class="btn btn-primary btn-sm fw-semibold">Deshacer</button>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
       </div>
     </div>
   </div>

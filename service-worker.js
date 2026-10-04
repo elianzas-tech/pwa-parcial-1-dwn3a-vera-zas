@@ -1,17 +1,19 @@
-const PRE_CACHE_NOMBRE = "pre-cacahe-v1.5";
-const DIN_CACHE_NOMBRE = "din-cacahe-v1.5";
+const PRE_CACHE_NOMBRE = "pre-cacahe-v1.6";
+const DIN_CACHE_NOMBRE = "din-cacahe-v1.6";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',
     './index.html',
     './css/styles.css',
     './js/app.js',
+    './js/iconos.js',
     './js/claro_oscuro.js',
     './images/check_box_completed.svg',
     './images/check_box_outline_blank.svg',
     './images/check_box_selected.svg',
-    //BOOTSTRAP CDN
+    //BOOTSTRAP CDN (el JS también: sin él, app.js falla offline al usar bootstrap.Toast)
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
 ]
 
 
@@ -23,7 +25,8 @@ self.addEventListener('install', (evento) => {
         caches.open(PRE_CACHE_NOMBRE)
         .then(cache => {
             console.log('Cache de pre-caching abierta');
-            cache.addAll(PRE_CACHE_RECURSOS);
+            // El return hace que waitUntil espere a que se guarden todos los recursos.
+            return cache.addAll(PRE_CACHE_RECURSOS);
         })
     );
 })
@@ -48,7 +51,8 @@ self.addEventListener('fetch', (evento) => {
             return fetch(evento.request)
                 .then(respuesta => {
 
-                    if(respuesta.ok) {
+                    // Si la respuesta falló (404, 500...) no se guarda.
+                    if(!respuesta.ok) {
                         return respuesta;
                     }
 
@@ -64,6 +68,20 @@ self.addEventListener('fetch', (evento) => {
 }) 
 
 /* Activacion del service-worker*/
-self.addEventListener('activate', () => {
+self.addEventListener('activate', (evento) => {
     console.log('El service-worker esta activo');
+
+    // Borra las caches de versiones anteriores. Sin esto, caches.match
+    // podría seguir encontrando el app.js viejo y la app nunca se actualiza.
+    evento.waitUntil(
+        caches.keys()
+        .then(nombres => Promise.all(
+            nombres
+                .filter(nombre => nombre !== PRE_CACHE_NOMBRE && nombre !== DIN_CACHE_NOMBRE)
+                .map(nombre => {
+                    console.log('Se borra la cache vieja:', nombre);
+                    return caches.delete(nombre);
+                })
+        ))
+    );
 })

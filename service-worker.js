@@ -13,6 +13,9 @@ const PRE_CACHE_RECURSOS = [
     './images/check_box_completed.svg',
     './images/check_box_outline_blank.svg',
     './images/check_box_selected.svg',
+    './images/icons/icon-152.png',
+    './images/icons/icon-48.png',
+    './images/icons/icon-512.png',
     //BOOTSTRAP CDN
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',

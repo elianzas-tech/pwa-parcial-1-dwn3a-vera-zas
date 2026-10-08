@@ -62,11 +62,9 @@ class Lista {
 
   get id() { return this.#id; }
   get nombre() { return this.#nombre; }
-  set nombre(valor) { this.#nombre = valor; }
-
-  // Copia, no el array real: nadie de afuera toca las tareas sin pasar
-  // por estos metodos.
   get tareas() { return [...this.#tareas]; }
+
+  set nombre(valor) { this.#nombre = valor; }
 
   agregarTarea(descripcion) {
     this.#tareas.push(new Tarea(descripcion));
@@ -76,8 +74,7 @@ class Lista {
     this.#tareas = this.#tareas.filter((t) => !ids.includes(t.id));
   }
 
-  // Vuelve a un estado anterior de las tareas ("Deshacer"). Las tareas
-  // agregadas después de ese estado se conservan al final.
+  // Vuelve a un estado anterior de las tareas ("Deshacer"). 
   restaurarTareas(tareas) {
     const nuevas = this.#tareas.filter((t) => !tareas.includes(t));
     this.#tareas = [...tareas, ...nuevas];
@@ -86,7 +83,6 @@ class Lista {
   alternarTarea(id) {
     const tarea = this.#tareas.find((t) => t.id === id);
     if (tarea) tarea.alternarCompletada();
-    /* if (tarea) tarea.completada = !tarea.completada; */
   }
 
   renombrarTarea(id, descripcion) {
@@ -214,13 +210,13 @@ const bsToastDeshacer = bootstrap.Toast.getOrCreateInstance(toastDeshacer);
 const gestor = new GestorListas();
 let filtroActivo = 'all';
 
-let modoEdicion = false;    // "Editar" -> aparecen los lápices
+let modoEdicion = false;    // "Editar" 
 let editandoLista = null;   // id de la lista con el input de renombre abierto
 let editandoTarea = null;   // id de la tarea con el input de renombre abierto
 
 // Cada zona tiene su propio selector: se pueden usar por separado.
-let modoSeleccionListas = false;       // "Seleccionar" del sidebar -> checkboxes en listas
-let modoSeleccionTareas = false;       // "Seleccionar" del panel -> checkboxes en tareas
+let modoSeleccionListas = false;       // "Seleccionar" del sidebar 
+let modoSeleccionTareas = false;       // "Seleccionar" del panel 
 const listasSeleccionadas = new Set(); // ids de listas tildadas
 const tareasSeleccionadas = new Set(); // ids de tareas tildadas
 
@@ -237,7 +233,6 @@ function mostrarAviso(mensaje) {
   bsToastAviso.show();
 }
 
-// Eliminar sin modal: se borra al toque y el toast ofrece "Deshacer".
 // Mientras el toast está abierto, los borrados del mismo origen se agrupan
 // en un lote: el texto suma la cantidad y "Deshacer" los devuelve todos.
 let lote = null; // { origen, cantidad, restaurar }
@@ -253,9 +248,7 @@ btnDeshacer.addEventListener('click', () => {
 // Al cerrarse el toast (solo o con la X) el lote termina.
 toastDeshacer.addEventListener('hidden.bs.toast', () => { lote = null; });
 
-// Suma un borrado al lote abierto, o abre uno nuevo si cambió el origen
-// (otra lista de tareas, o pasar de tareas a listas). `restaurar` solo se
-// guarda al abrir el lote: vuelve a la foto de antes del primer borrado.
+// Suma un borrado al lote abierto, o abre uno nuevo si cambió el origen.
 function avisarBorrado(origen, restaurar, nombres, palabra) {
   if (!lote || lote.origen !== origen) {
     lote = { origen, cantidad: 0, restaurar };
@@ -273,7 +266,7 @@ function eliminarTareasConDeshacer(lista, ids) {
   const borradas = lista.tareas.filter((t) => ids.includes(t.id));
   if (borradas.length === 0) return;
 
-  const anteriores = lista.tareas; // foto antes de borrar
+  const anteriores = lista.tareas;
   lista.eliminarTareas(ids);
   render();
 
@@ -285,7 +278,7 @@ function eliminarListasConDeshacer(ids) {
   const borradas = gestor.listas.filter((l) => ids.includes(l.id));
   if (borradas.length === 0) return;
 
-  const anteriores = gestor.listas; // foto antes de borrar
+  const anteriores = gestor.listas; 
   const idActiva = gestor.listaActiva?.id ?? null;
   gestor.eliminarListas(ids);
   if (!gestor.hayListas) modoSeleccionListas = false;
@@ -309,15 +302,13 @@ function crearBotonLapiz(aria, onClick) {
   return btn;
 }
 
-// Botón de tilde: confirma el renombre. Al mientras se está editando, el
-// lápiz se reemplaza por este. Igual se puede confirmar clickeando afuera
-// (blur del input); esto es solo el atajo por ícono.
+// Botón de tilde: confirma el renombre.
 function crearBotonConfirmar(aria, onClick) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'btn p-0 border-0 flex-shrink-0 fs-5 lh-1 fw-bold text-success';
   btn.setAttribute('aria-label', aria);
-  btn.textContent = '✓';   // ✓ tilde suelto
+  btn.textContent = '✓';  
   btn.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
   return btn;
 }
@@ -429,8 +420,6 @@ function limpiarErrorLista() {
   errorNuevaLista.textContent = '';
 }
 
-// Bootstrap revela el <p class="invalid-feedback"> solo cuando el input
-// tiene la clase .is-invalid.
 function mostrarErrorLista(mensaje) {
   errorNuevaLista.textContent = mensaje;
   entradaNuevaLista.classList.add('is-invalid');
@@ -440,7 +429,6 @@ function mostrarErrorLista(mensaje) {
 formNuevaLista.addEventListener('submit', (e) => {
   e.preventDefault();
 
-  // trim(): un nombre de solo espacios queda como '' -> invalido.
   const nombre = entradaNuevaLista.value.trim();
   if (nombre === '') {
     mostrarErrorLista('El nombre de tu lista no puede quedar vacío.');
@@ -448,7 +436,7 @@ formNuevaLista.addEventListener('submit', (e) => {
   }
 
   limpiarErrorLista();
-  gestor.agregarLista(nombre);   // queda seleccionada sola
+  gestor.agregarLista(nombre);  
   entradaNuevaLista.value = '';
   render();
 });
@@ -484,8 +472,6 @@ function crearFormTarea() {
 
   boton.append(document.createTextNode('Añadir'), crearIcono('agregar', 'icon-lg'));
 
-  // Mensaje de error debajo del input (la fila es d-flex, así que el <p> va
-  // como hijo del form, no de la fila). Se togglea a mano con .d-none.
   const error = document.createElement('p');
   error.className = 'text-danger small mt-1 mb-0 d-none';
   error.id = 'error-nueva-tarea';
@@ -505,8 +491,8 @@ function crearFormTarea() {
 
     const descripcion = input.value.trim();
     if (descripcion === '') {
-      input.classList.add('is-invalid');   // borde rojo
-      error.classList.remove('d-none');    // muestra el mensaje
+      input.classList.add('is-invalid');   
+      error.classList.remove('d-none');   
       input.focus();
       return;
     }
@@ -529,7 +515,6 @@ contenedorFormTarea.append(formTarea);
 // ===================================================================
 // Botones "Seleccionar" y "Editar"
 // ===================================================================
-// Los estados "active" de los botones se sincronizan en render().
 btnSeleccionarListas.addEventListener('click', () => {
   if (!modoSeleccionListas && !gestor.hayListas) {
     mostrarAviso('No hay listas para seleccionar');
@@ -575,21 +560,16 @@ btnEditar.addEventListener('click', () => {
 // Sidebar: abrir una lista al clickearla
 // ===================================================================
 listasSidebar.addEventListener('click', (e) => {
-  // En modo selección el clic es para tildar, no para navegar: si no se
-  // corta acá, el render() destruye el checkbox en medio del clic.
   if (modoSeleccionListas) return;
   const boton = e.target.closest('.list-group-item');
   if (!boton) return;
   gestor.seleccionarLista(Number(boton.dataset.id));
-  // Las tareas tildadas eran de la lista anterior.
   tareasSeleccionadas.clear();
   render();
 });
 
 // ===================================================================
 // Lista de tareas: borrar (sobre la lista activa).
-// Marcar/desmarcar como completada ya no pasa por acá: lo maneja el propio
-// checkbox en su 'change', dentro de renderTareas().
 // ===================================================================
 listaTareas.addEventListener('click', (e) => {
   const boton = e.target.closest('button[data-accion]');
@@ -677,8 +657,7 @@ function renderSidebar() {
       return;
     }
 
-    // Modo edición: fila con lápiz (o input de renombre si esta lista se
-    // está editando). Es un <li>, no un <button>, para poder meter el input.
+    // Modo edición
     if (modoEdicion) {
       const fila = document.createElement('li');
       fila.className = `${base} ${relleno} d-flex align-items-center gap-2`;
@@ -714,7 +693,7 @@ function renderSidebar() {
       return;
     }
 
-    // Modo normal: enlace que navega a la lista, dentro de su <li>.
+    // Modo normal
     const item = document.createElement('li');
     item.className = 'd-flex';
 
@@ -764,14 +743,11 @@ function renderPanel() {
 
   renderTareas();
 
-  // "No hay tareas para mostrar" cuando la lista existe pero el filtro
-  // actual no devuelve ninguna.
+  // "No hay tareas para mostrar"
   const visibles = lista ? lista.tareasFiltradas(filtroActivo).length : 0;
   estadoVacio.classList.toggle('d-none', !lista || visibles > 0);
 }
 
-// Pinta las tareas de la lista activa (ya filtradas) dentro de #lista-tareas.
-// Cada fila: checkbox (marca/desmarca), texto y botón de borrar.
 function renderTareas() {
   listaTareas.replaceChildren();
   const lista = gestor.listaActiva;
@@ -833,15 +809,12 @@ function renderTareas() {
         });
         li.append(btnConfirmar);
       } else {
-        // <label for> asociado al checkbox: clickear el texto también
-        // marca/desmarca la tarea como completada.
         contenido = document.createElement('label');
         contenido.htmlFor = idCheck;
-        contenido.className = 'flex-grow-1';   // sin tachado: la completada se
-        contenido.textContent = tarea.descripcion;   // distingue solo por el icono
+        contenido.className = 'flex-grow-1';  
+        contenido.textContent = tarea.descripcion;   
         li.append(check, contenido);
 
-        // En modo edición, lápiz para renombrar la tarea.
         if (modoEdicion) {
           li.append(crearBotonLapiz('Editar nombre de la tarea', () => {
             editandoTarea = tarea.id;
@@ -881,3 +854,23 @@ tabs.forEach((tab) => {
 // ===================================================================
 mostrarFecha();
 render();
+
+// ===================================================================
+// Evento instalador
+// ===================================================================
+window.addEventListener('beforeinstallprompt', (eventoInstalador) => {
+  // Opcional: prevenimos que se dispare el evento de instalación al entrar a la página.
+  eventoInstalador.preventDefault();
+
+  // Agregamos/mostramos nuestra call-to-action para instalar la aplicación.
+  const $boton = document.querySelector('#instalador');
+  $boton.hidden = false;
+  $boton.addEventListener('click', () => {
+    // Ejecutamos el evento de instalación
+    eventoInstalador.prompt()
+      .then(() => {
+        // Luego de ejecutar el evento, ocultamos el botón, no importa el resultado
+        $boton.hidden = true;
+      });
+  });
+});

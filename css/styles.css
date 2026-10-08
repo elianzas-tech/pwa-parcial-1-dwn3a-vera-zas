@@ -60,6 +60,12 @@
   min-height: 3.5rem;
 }
 
+/* Botón de instalar: flex para alinear ícono y texto. Mientras tiene
+   el atributo hidden sigue oculto (Bootstrap pone [hidden] con !important). */
+#instalador {
+  display: flex;
+}
+
 /* El texto del botón de tema alterna "Claro" / "Oscuro" (largos distintos).
    Le fijamos un ancho mínimo para que el botón no cambie de tamaño al togglear. */
 #texto-tema {

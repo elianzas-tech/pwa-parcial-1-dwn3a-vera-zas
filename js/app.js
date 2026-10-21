@@ -19,14 +19,12 @@ if("serviceWorker" in navigator){
 
 // Una tarea suelta.
 class Tarea {
-  static #ultimoId = 0;   // contador compartido para generar ids unicos
-
   #id;
   #descripcion;
   #completada = false;
 
   constructor(descripcion) {
-    this.#id = ++Tarea.#ultimoId;
+    this.#id = crypto.randomUUID();
     this.#descripcion = descripcion;
   }
 
@@ -575,7 +573,7 @@ listaTareas.addEventListener('click', (e) => {
   const boton = e.target.closest('button[data-accion]');
   if (!boton || !gestor.listaActiva) return;
 
-  const id = Number(boton.dataset.id);
+  const id = boton.dataset.id;
   if (boton.dataset.accion === 'borrar') {
     eliminarTareasConDeshacer(gestor.listaActiva, [id]);
   }

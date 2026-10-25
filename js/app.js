@@ -854,21 +854,35 @@ mostrarFecha();
 renderizar();
 
 // ===================================================================
-// Evento instalador
+// Instalación de la PWA
 // ===================================================================
-window.addEventListener('beforeinstallprompt', (eventoInstalador) => {
-  // Opcional: prevenimos que se dispare el evento de instalación al entrar a la página.
-  eventoInstalador.preventDefault();
+const botonInstalar = document.querySelector('#instalador');
+let eventoInstalacion = null;
 
-  // Agregamos/mostramos nuestra call-to-action para instalar la aplicación.
-  const $boton = document.querySelector('#instalador');
-  $boton.hidden = false;
-  $boton.addEventListener('click', () => {
-    // Ejecutamos el evento de instalación
-    eventoInstalador.prompt()
-      .then(() => {
-        // Luego de ejecutar el evento, ocultamos el botón, no importa el resultado
-        $boton.hidden = true;
-      });
-  });
+window.addEventListener('beforeinstallprompt', (evento) => {
+  // Evita el aviso automático del navegador; usamos nuestro botón.
+  evento.preventDefault();
+  eventoInstalacion = evento;
+  botonInstalar.hidden = false;
+});
+
+// El click se registra una sola vez, fuera del evento.
+botonInstalar.addEventListener('click', async () => {
+  if (!eventoInstalacion) return;
+
+  // Se oculta antes de abrir el diálogo para que no haya un segundo click.
+  botonInstalar.hidden = true;
+
+  // prompt() solo puede usarse una vez por evento.
+  const evento = eventoInstalacion;
+  eventoInstalacion = null;
+
+  await evento.prompt();
+  await evento.userChoice;
+});
+
+// Si la app se instala (desde el botón o desde el menú del navegador), el botón no vuelve.
+window.addEventListener('appinstalled', () => {
+  eventoInstalacion = null;
+  botonInstalar.hidden = true;
 });

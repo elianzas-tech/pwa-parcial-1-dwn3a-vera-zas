@@ -10,11 +10,11 @@ if("serviceWorker" in navigator){
 
    El index.html es solo la estructura (Bootstrap). Aca vive:
      - el modelo (Tarea, Lista, GestorListas)
-     - el render del sidebar (#listas-sidebar) y del panel principal
+     - el renderizado de la barra lateral (#listas-barra-lateral) y del panel principal
      - crear listas (con validacion) y seleccionarlas
      - avisos con toast de Bootstrap
 
-   El cambio de tema claro/oscuro vive aparte, en js/claro_oscuro.js.
+   El cambio de tema claro/oscuro vive aparte, en js/claro-oscuro.js.
    =================================================================== */
 
 // Una tarea suelta.
@@ -93,9 +93,9 @@ class Lista {
   contarCompletadas() { return this.#tareas.filter((t) => t.completada).length; }
 
   tareasFiltradas(filtro) {
-    if (filtro === 'pending') return this.#tareas.filter((t) => !t.completada);
-    if (filtro === 'completed') return this.#tareas.filter((t) => t.completada);
-    return this.tareas;   // 'all'
+    if (filtro === 'pendientes') return this.#tareas.filter((t) => !t.completada);
+    if (filtro === 'completadas') return this.#tareas.filter((t) => t.completada);
+    return this.tareas;   // 'todas'
   }
 }
 
@@ -154,18 +154,18 @@ class GestorListas {
 // Referencias al DOM
 // ===================================================================
 
-// Sidebar
-const listasSidebar = document.getElementById('listas-sidebar');
-const formNuevaLista = document.getElementById('form-nueva-lista');
+// Barra lateral
+const listasBarraLateral = document.getElementById('listas-barra-lateral');
+const formularioNuevaLista = document.getElementById('formulario-nueva-lista');
 
 const entradaNuevaLista = document.getElementById('entrada-nueva-lista');
 entradaNuevaLista.setAttribute('aria-invalid', 'true');
 entradaNuevaLista.setAttribute('aria-describedby', 'error-nueva-lista');
 
 const errorNuevaLista = document.getElementById('error-nueva-lista');
-const btnSeleccionarListas = document.getElementById('btn-seleccionar-listas');
-const btnSeleccionarTareas = document.getElementById('btn-seleccionar-tareas');
-const btnEditar = document.getElementById('btn-editar-listas');
+const botonSeleccionarListas = document.getElementById('boton-seleccionar-listas');
+const botonSeleccionarTareas = document.getElementById('boton-seleccionar-tareas');
+const botonEditar = document.getElementById('boton-editar-listas');
 const barraSeleccionListas = document.getElementById('barra-seleccion-listas');
 
 // Panel principal
@@ -182,38 +182,38 @@ const seccionTareas = document.getElementById('seccion-tareas');
 const listaTareas = document.getElementById('lista-tareas');
 const estadoSinListas = document.getElementById('estado-sin-listas');
 const estadoVacio = document.getElementById('estado-vacio');
-const contenedorFormTarea = document.getElementById('contenedor-form-tarea');
+const contenedorFormularioTarea = document.getElementById('contenedor-formulario-tarea');
 const barraSeleccionTareas = document.getElementById('barra-seleccion-tareas');
-const tabs = document.querySelectorAll('.tab');
+const pestanas = document.querySelectorAll('.pestana');
 const contadores = {
-  all: document.getElementById('count-all'),
-  pending: document.getElementById('count-pending'),
-  completed: document.getElementById('count-completed'),
+  todas: document.getElementById('contador-todas'),
+  pendientes: document.getElementById('contador-pendientes'),
+  completadas: document.getElementById('contador-completadas'),
 };
 
 // Toast de avisos
-const toastAviso = document.getElementById('toast-aviso');
-const toastAvisoTexto = document.getElementById('toast-aviso-texto');
-const bsToastAviso = bootstrap.Toast.getOrCreateInstance(toastAviso);
+const elementoAviso = document.getElementById('notificacion-aviso');
+const textoAviso = document.getElementById('notificacion-aviso-texto');
+const notificacionAviso = bootstrap.Toast.getOrCreateInstance(elementoAviso);
 
 // Toast de "Deshacer" (eliminar tareas y listas)
-const toastDeshacer = document.getElementById('toast-deshacer');
-const toastDeshacerTexto = document.getElementById('toast-deshacer-texto');
-const btnDeshacer = document.getElementById('toast-deshacer-btn');
-const bsToastDeshacer = bootstrap.Toast.getOrCreateInstance(toastDeshacer);
+const elementoDeshacer = document.getElementById('notificacion-deshacer');
+const textoDeshacer = document.getElementById('notificacion-deshacer-texto');
+const botonDeshacer = document.getElementById('notificacion-deshacer-boton');
+const notificacionDeshacer = bootstrap.Toast.getOrCreateInstance(elementoDeshacer);
 
 // ===================================================================
 // Estado
 // ===================================================================
 const gestor = new GestorListas();
-let filtroActivo = 'all';
+let filtroActivo = 'todas';
 
 let modoEdicion = false;    // "Editar" 
 let editandoLista = null;   // id de la lista con el input de renombre abierto
 let editandoTarea = null;   // id de la tarea con el input de renombre abierto
 
 // Cada zona tiene su propio selector: se pueden usar por separado.
-let modoSeleccionListas = false;       // "Seleccionar" del sidebar 
+let modoSeleccionListas = false;       // "Seleccionar" de la barra lateral
 let modoSeleccionTareas = false;       // "Seleccionar" del panel 
 const listasSeleccionadas = new Set(); // ids de listas tildadas
 const tareasSeleccionadas = new Set(); // ids de tareas tildadas
@@ -227,24 +227,24 @@ function mostrarFecha() {
 }
 
 function mostrarAviso(mensaje) {
-  toastAvisoTexto.textContent = mensaje;
-  bsToastAviso.show();
+  textoAviso.textContent = mensaje;
+  notificacionAviso.show();
 }
 
 // Mientras el toast está abierto, los borrados del mismo origen se agrupan
 // en un lote: el texto suma la cantidad y "Deshacer" los devuelve todos.
 let lote = null; // { origen, cantidad, restaurar }
 
-btnDeshacer.addEventListener('click', () => {
+botonDeshacer.addEventListener('click', () => {
   if (!lote) return;
   lote.restaurar();
   lote = null;
-  bsToastDeshacer.hide();
-  render();
+  notificacionDeshacer.hide();
+  renderizar();
 });
 
 // Al cerrarse el toast (solo o con la X) el lote termina.
-toastDeshacer.addEventListener('hidden.bs.toast', () => { lote = null; });
+elementoDeshacer.addEventListener('hidden.bs.toast', () => { lote = null; });
 
 // Suma un borrado al lote abierto, o abre uno nuevo si cambió el origen.
 function avisarBorrado(origen, restaurar, nombres, palabra) {
@@ -254,10 +254,10 @@ function avisarBorrado(origen, restaurar, nombres, palabra) {
   lote.cantidad += nombres.length;
 
   const Palabra = palabra.charAt(0).toUpperCase() + palabra.slice(1);
-  toastDeshacerTexto.textContent = lote.cantidad === 1
+  textoDeshacer.textContent = lote.cantidad === 1
     ? `${Palabra} "${nombres[0]}" eliminada`
     : `${lote.cantidad} ${palabra}s eliminadas`;
-  bsToastDeshacer.show();
+  notificacionDeshacer.show();
 }
 
 function eliminarTareasConDeshacer(lista, ids) {
@@ -266,7 +266,7 @@ function eliminarTareasConDeshacer(lista, ids) {
 
   const anteriores = lista.tareas;
   lista.eliminarTareas(ids);
-  render();
+  renderizar();
 
   avisarBorrado(lista, () => lista.restaurarTareas(anteriores),
     borradas.map((t) => t.descripcion), 'tarea');
@@ -282,7 +282,7 @@ function eliminarListasConDeshacer(ids) {
   if (!gestor.hayListas) modoSeleccionListas = false;
   // Si cambió la lista activa, las tareas tildadas eran de la anterior.
   if (gestor.listaActiva?.id !== idActiva) tareasSeleccionadas.clear();
-  render();
+  renderizar();
 
   avisarBorrado(gestor, () => gestor.restaurarListas(anteriores, idActiva),
     borradas.map((l) => l.nombre), 'lista');
@@ -290,51 +290,51 @@ function eliminarListasConDeshacer(ids) {
 
 
 // Botón de lápiz (icono editar): abre el input de renombre.
-function crearBotonLapiz(aria, onClick) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'btn p-0 border-0 flex-shrink-0';
-  btn.setAttribute('aria-label', aria);
-  btn.append(crearIcono('editar', 'icon-md'));
-  btn.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
-  return btn;
+function crearBotonLapiz(aria, alHacerClic) {
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 'btn p-0 border-0 flex-shrink-0';
+  boton.setAttribute('aria-label', aria);
+  boton.append(crearIcono('editar', 'icono-md'));
+  boton.addEventListener('click', (e) => { e.stopPropagation(); alHacerClic(); });
+  return boton;
 }
 
 // Botón de tilde: confirma el renombre.
-function crearBotonConfirmar(aria, onClick) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'btn p-0 border-0 flex-shrink-0 fs-5 lh-1 fw-bold text-success';
-  btn.setAttribute('aria-label', aria);
-  btn.textContent = '✓';  
-  btn.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
-  return btn;
+function crearBotonConfirmar(aria, alHacerClic) {
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 'btn p-0 border-0 flex-shrink-0 fs-5 lh-1 fw-bold text-success';
+  boton.setAttribute('aria-label', aria);
+  boton.textContent = '✓';
+  boton.addEventListener('click', (e) => { e.stopPropagation(); alHacerClic(); });
+  return boton;
 }
 
 // Input inline de renombre. Enter/blur guardan; Escape cancela; vacío cancela.
-function crearInputRenombre(valorInicial, onGuardar, onCancelar) {
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'form-control form-control-sm flex-grow-1';
-  input.value = valorInicial;
-  input.addEventListener('click', (e) => e.stopPropagation());
+function crearEntradaRenombre(valorInicial, alGuardar, alCancelar) {
+  const entrada = document.createElement('input');
+  entrada.type = 'text';
+  entrada.className = 'form-control form-control-sm flex-grow-1';
+  entrada.value = valorInicial;
+  entrada.addEventListener('click', (e) => e.stopPropagation());
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-    if (e.key === 'Escape') { input.dataset.cancelar = '1'; input.blur(); }
+  entrada.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); entrada.blur(); }
+    if (e.key === 'Escape') { entrada.dataset.cancelar = '1'; entrada.blur(); }
   });
-  input.addEventListener('blur', () => {
-    const valor = input.value.trim();
-    if (input.dataset.cancelar || valor === ''){ 
-      onCancelar();
+  entrada.addEventListener('blur', () => {
+    const valor = entrada.value.trim();
+    if (entrada.dataset.cancelar || valor === ''){
+      alCancelar();
     } else { 
-      onGuardar(valor); 
+      alGuardar(valor); 
     }
   });
 
   // Foco una vez insertado en el DOM.
-  requestAnimationFrame(() => { input.focus(); input.select(); });
-  return input;
+  requestAnimationFrame(() => { entrada.focus(); entrada.select(); });
+  return entrada;
 }
 
 // ===================================================================
@@ -342,7 +342,7 @@ function crearInputRenombre(valorInicial, onGuardar, onCancelar) {
 // ===================================================================
 
 // Arma la barra "Seleccionar todos / Eliminar" dentro de `contenedor`.
-function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, onTodos, onEliminar }) {
+function renderizarBarraSeleccion(contenedor, { visible, todosMarcados, textoTodos, alTodos, alEliminar }) {
   contenedor.replaceChildren();
   contenedor.classList.toggle('d-none', !visible);
   if (!visible) return;
@@ -354,35 +354,35 @@ function renderBarraSeleccion(contenedor, { visible, todosMarcados, textTodos, o
   const filaTodos = document.createElement('label');
   filaTodos.className = 'btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 flex-grow-1 text-start';
 
-  const checkTodos = document.createElement('input');
-  checkTodos.type = 'checkbox';
-  checkTodos.className = 'check-custom';
-  checkTodos.checked = todosMarcados;
-  checkTodos.addEventListener('change', onTodos);
+  const casillaTodos = document.createElement('input');
+  casillaTodos.type = 'checkbox';
+  casillaTodos.className = 'casilla-personalizada';
+  casillaTodos.checked = todosMarcados;
+  casillaTodos.addEventListener('change', alTodos);
 
-  filaTodos.append(checkTodos, document.createTextNode(textTodos));
+  filaTodos.append(casillaTodos, document.createTextNode(textoTodos));
 
-  const btnEliminar = document.createElement('button');
-  btnEliminar.type = 'button';
-  btnEliminar.className = 'btn btn-danger btn-sm d-flex align-items-center gap-2';
-  btnEliminar.append(crearIcono('eliminar', 'icon-sm'), document.createTextNode('Eliminar'));
-  btnEliminar.addEventListener('click', onEliminar);
+  const botonEliminar = document.createElement('button');
+  botonEliminar.type = 'button';
+  botonEliminar.className = 'btn btn-danger btn-sm d-flex align-items-center gap-2';
+  botonEliminar.append(crearIcono('eliminar', 'icono-sm'), document.createTextNode('Eliminar'));
+  botonEliminar.addEventListener('click', alEliminar);
 
-  fila.append(filaTodos, btnEliminar);
+  fila.append(filaTodos, botonEliminar);
   contenedor.append(fila);
 }
 
-function toggleTodasListas() {
+function alternarTodasListas() {
   const ids = gestor.listas.map((l) => l.id);
   if (listasSeleccionadas.size === ids.length){
     listasSeleccionadas.clear();
   } else {
     ids.forEach((id) => listasSeleccionadas.add(id));
   }
-  render();
+  renderizar();
 }
 
-function toggleTodasTareas() {
+function alternarTodasTareas() {
   const lista = gestor.listaActiva;
   if (!lista) return;
   const ids = lista.tareas.map((t) => t.id);
@@ -391,7 +391,7 @@ function toggleTodasTareas() {
   } else {
     ids.forEach((id) => tareasSeleccionadas.add(id));
   } 
-  render();
+  renderizar();
 }
 
 function eliminarListasSeleccionadas() {
@@ -424,7 +424,7 @@ function mostrarErrorLista(mensaje) {
   entradaNuevaLista.focus();
 }
 
-formNuevaLista.addEventListener('submit', (e) => {
+formularioNuevaLista.addEventListener('submit', (e) => {
   e.preventDefault();
 
   const nombre = entradaNuevaLista.value.trim();
@@ -436,84 +436,84 @@ formNuevaLista.addEventListener('submit', (e) => {
   limpiarErrorLista();
   gestor.agregarLista(nombre);  
   entradaNuevaLista.value = '';
-  render();
+  renderizar();
 });
 
 entradaNuevaLista.addEventListener('input', limpiarErrorLista);
 
 // ===================================================================
 // Agregar tarea
-function crearFormTarea() {
-  const form = document.createElement('form');
-  form.id = 'form-nueva-tarea';
-  form.className = 'mb-4';
+function crearFormularioTarea() {
+  const formulario = document.createElement('form');
+  formulario.id = 'formulario-nueva-tarea';
+  formulario.className = 'mb-4';
 
-  const label = document.createElement('label');
-  label.className = 'form-label mb-1';
-  label.htmlFor = 'entrada-tarea';
-  label.textContent = 'Agregá una nueva tarea';
+  const etiqueta = document.createElement('label');
+  etiqueta.className = 'form-label mb-1';
+  etiqueta.htmlFor = 'entrada-tarea';
+  etiqueta.textContent = 'Agregá una nueva tarea';
 
   const fila = document.createElement('div');
   fila.className = 'd-flex gap-2';
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.id = 'entrada-tarea';
-  input.className = 'form-control';
-  input.autocomplete = 'off';
-  input.ariaInvalid = true;
-  input.setAttribute('aria-describedby', 'error-nueva-tarea');
+  const entrada = document.createElement('input');
+  entrada.type = 'text';
+  entrada.id = 'entrada-tarea';
+  entrada.className = 'form-control';
+  entrada.autocomplete = 'off';
+  entrada.ariaInvalid = true;
+  entrada.setAttribute('aria-describedby', 'error-nueva-tarea');
 
   const boton = document.createElement('button');
   boton.type = 'submit';
   boton.className = 'btn btn-primary d-flex align-items-center justify-content-center gap-2 px-3 rounded-3';
 
-  boton.append(document.createTextNode('Añadir'), crearIcono('agregar', 'icon-lg'));
+  boton.append(document.createTextNode('Añadir'), crearIcono('agregar', 'icono-lg'));
 
   const error = document.createElement('p');
   error.className = 'text-danger small mt-1 mb-0 d-none';
   error.id = 'error-nueva-tarea';
   error.textContent = 'La tarea no puede estar vacía';
 
-  fila.append(input, boton);
-  form.append(label, fila, error);
+  fila.append(entrada, boton);
+  formulario.append(etiqueta, fila, error);
 
   const limpiarError = () => {
-    input.classList.remove('is-invalid');
+    entrada.classList.remove('is-invalid');
     error.classList.add('d-none');
   };
 
-  form.addEventListener('submit', (evento) => {
+  formulario.addEventListener('submit', (evento) => {
     evento.preventDefault();
     if (!gestor.listaActiva) return;
 
-    const descripcion = input.value.trim();
+    const descripcion = entrada.value.trim();
     if (descripcion === '') {
-      input.classList.add('is-invalid');   
-      error.classList.remove('d-none');   
-      input.focus();
+      entrada.classList.add('is-invalid');
+      error.classList.remove('d-none');
+      entrada.focus();
       return;
     }
 
     limpiarError();
     gestor.listaActiva.agregarTarea(descripcion);
-    input.value = '';
-    render();
+    entrada.value = '';
+    renderizar();
   });
 
   // Al volver a escribir, saca el error.
-  input.addEventListener('input', limpiarError);
+  entrada.addEventListener('input', limpiarError);
 
-  return form;
+  return formulario;
 }
 
-const formTarea = crearFormTarea();
-contenedorFormTarea.append(formTarea);
+const formularioTarea = crearFormularioTarea();
+contenedorFormularioTarea.append(formularioTarea);
 
 // ===================================================================
 // Botones "Seleccionar" y "Editar"
 // ===================================================================
-btnSeleccionarListas.addEventListener('click', () => {
+botonSeleccionarListas.addEventListener('click', () => {
   if (!modoSeleccionListas && !gestor.hayListas) {
     mostrarAviso('No hay listas para seleccionar');
     return;
@@ -523,10 +523,10 @@ btnSeleccionarListas.addEventListener('click', () => {
   editandoLista = null;
   editandoTarea = null;
   listasSeleccionadas.clear();
-  render();
+  renderizar();
 });
 
-btnSeleccionarTareas.addEventListener('click', () => {
+botonSeleccionarTareas.addEventListener('click', () => {
   if (!modoSeleccionTareas && !gestor.listaActiva?.contarTotal()) {
     mostrarAviso('No hay tareas para seleccionar');
     return;
@@ -536,10 +536,10 @@ btnSeleccionarTareas.addEventListener('click', () => {
   editandoLista = null;
   editandoTarea = null;
   tareasSeleccionadas.clear();
-  render();
+  renderizar();
 });
 
-btnEditar.addEventListener('click', () => {
+botonEditar.addEventListener('click', () => {
   if (!gestor.hayListas) {
     mostrarAviso('No hay listas ni tareas para editar');
     return;
@@ -551,19 +551,19 @@ btnEditar.addEventListener('click', () => {
   editandoTarea = null;
   listasSeleccionadas.clear();
   tareasSeleccionadas.clear();
-  render();
+  renderizar();
 });
 
 // ===================================================================
-// Sidebar: abrir una lista al clickearla
+// Barra lateral: abrir una lista al clickearla
 // ===================================================================
-listasSidebar.addEventListener('click', (e) => {
+listasBarraLateral.addEventListener('click', (e) => {
   if (modoSeleccionListas) return;
   const boton = e.target.closest('.list-group-item');
   if (!boton) return;
   gestor.seleccionarLista(Number(boton.dataset.id));
   tareasSeleccionadas.clear();
-  render();
+  renderizar();
 });
 
 // ===================================================================
@@ -580,47 +580,47 @@ listaTareas.addEventListener('click', (e) => {
 });
 
 // ===================================================================
-// Render
+// Renderizado
 // ===================================================================
 
-function actualizarTabs() {
-  tabs.forEach((tab) => {
-    const esActivo = tab.dataset.filter === filtroActivo;
-    tab.classList.toggle('active', esActivo);
-    tab.setAttribute('aria-selected', esActivo ? 'true' : 'false');
+function actualizarPestanas() {
+  pestanas.forEach((pestana) => {
+    const esActivo = pestana.dataset.filtro === filtroActivo;
+    pestana.classList.toggle('active', esActivo);
+    pestana.setAttribute('aria-selected', esActivo ? 'true' : 'false');
   });
 }
 
 function actualizarBotonesModo() {
   [
-    [btnSeleccionarListas, modoSeleccionListas],
-    [btnSeleccionarTareas, modoSeleccionTareas],
-    [btnEditar, modoEdicion],
+    [botonSeleccionarListas, modoSeleccionListas],
+    [botonSeleccionarTareas, modoSeleccionTareas],
+    [botonEditar, modoEdicion],
   ].forEach(([boton, activo]) => {
     boton.classList.toggle('active', activo);
     boton.setAttribute('aria-pressed', activo ? 'true' : 'false');
   });
 }
 
-function render() {
-  actualizarTabs();
+function renderizar() {
+  actualizarPestanas();
   actualizarBotonesModo();
   estadoSinListas.classList.toggle('d-none', gestor.hayListas);
-  renderSidebar();
-  renderPanel();
+  renderizarBarraLateral();
+  renderizarPanel();
 }
 
-function renderSidebar() {
-  listasSidebar.replaceChildren();
+function renderizarBarraLateral() {
+  listasBarraLateral.replaceChildren();
 
   const mostrarBarraListas = modoSeleccionListas && gestor.hayListas;
   const todasListasMarcadas = gestor.listas.length > 0 && listasSeleccionadas.size === gestor.listas.length;
-  renderBarraSeleccion(barraSeleccionListas, {
+  renderizarBarraSeleccion(barraSeleccionListas, {
     visible: mostrarBarraListas,
     todosMarcados: todasListasMarcadas,
-    textTodos: todasListasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
-    onTodos: toggleTodasListas,
-    onEliminar: eliminarListasSeleccionadas,
+    textoTodos: todasListasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
+    alTodos: alternarTodasListas,
+    alEliminar: eliminarListasSeleccionadas,
   });
 
    gestor.listas.forEach((lista) => {
@@ -633,25 +633,25 @@ function renderSidebar() {
       fila.className = `${base} ${relleno} d-flex align-items-center gap-2`;
       fila.dataset.id = lista.id;
 
-      const idCheck = `check-lista-${lista.id}`;
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = idCheck;
-      checkbox.className = 'check-custom';
-      checkbox.checked = listasSeleccionadas.has(lista.id);
-      checkbox.addEventListener('change', () => {
-        if (checkbox.checked) listasSeleccionadas.add(lista.id);
+      const idCasilla = `casilla-lista-${lista.id}`;
+      const casilla = document.createElement('input');
+      casilla.type = 'checkbox';
+      casilla.id = idCasilla;
+      casilla.className = 'casilla-personalizada';
+      casilla.checked = listasSeleccionadas.has(lista.id);
+      casilla.addEventListener('change', () => {
+        if (casilla.checked) listasSeleccionadas.add(lista.id);
         else listasSeleccionadas.delete(lista.id);
-        render();
+        renderizar();
       });
 
       const nombre = document.createElement('label');
-      nombre.htmlFor = idCheck;
+      nombre.htmlFor = idCasilla;
       nombre.className = 'flex-grow-1 text-truncate';
       nombre.textContent = lista.nombre;
 
-      fila.append(checkbox, nombre);
-      listasSidebar.append(fila);
+      fila.append(casilla, nombre);
+      listasBarraLateral.append(fila);
       return;
     }
 
@@ -662,20 +662,20 @@ function renderSidebar() {
       fila.dataset.id = lista.id;
 
       if (lista.id === editandoLista) {
-        const input = crearInputRenombre(
+        const entrada = crearEntradaRenombre(
           lista.nombre,
-          (valor) => { gestor.renombrarLista(lista.id, valor); editandoLista = null; render(); },
-          () => { editandoLista = null; render(); },
+          (valor) => { gestor.renombrarLista(lista.id, valor); editandoLista = null; renderizar(); },
+          () => { editandoLista = null; renderizar(); },
         );
-        const btnConfirmar = crearBotonConfirmar('Confirmar nombre de la lista', () => {
-          const valor = input.value.trim();
+        const botonConfirmar = crearBotonConfirmar('Confirmar nombre de la lista', () => {
+          const valor = entrada.value.trim();
           if (valor !== '') {
             gestor.renombrarLista(lista.id, valor);
           }
           editandoLista = null;
-          render();
+          renderizar();
         });
-        fila.append(input, btnConfirmar);
+        fila.append(entrada, botonConfirmar);
       } else {
         const nombre = document.createElement('span');
         nombre.className = 'flex-grow-1 text-truncate';
@@ -683,17 +683,17 @@ function renderSidebar() {
         const lapiz = crearBotonLapiz('Editar nombre de la lista', () => {
           editandoLista = lista.id;
           editandoTarea = null;
-          render();
+          renderizar();
         });
         fila.append(nombre, lapiz);
       }
-      listasSidebar.append(fila);
+      listasBarraLateral.append(fila);
       return;
     }
 
     // Modo normal
-    const item = document.createElement('li');
-    item.className = 'd-flex';
+    const elemento = document.createElement('li');
+    elemento.className = 'd-flex';
 
     const enlace = document.createElement('a');
     enlace.href = `#lista-${lista.id}`;
@@ -702,12 +702,12 @@ function renderSidebar() {
     enlace.textContent = lista.nombre;
     if (esActiva) enlace.setAttribute('aria-current', 'page');
 
-    item.append(enlace);
-    listasSidebar.append(item);
+    elemento.append(enlace);
+    listasBarraLateral.append(elemento);
   });
 }
 
-function renderPanel() {
+function renderizarPanel() {
   const lista = gestor.listaActiva;
 
   // La sección de tareas (filtros, form y lista) solo aparece si hay una lista activa.
@@ -725,28 +725,28 @@ function renderPanel() {
   const pendientes = lista ? lista.contarPendientes() : 0;
   const completadas = lista ? lista.contarCompletadas() : 0;
 
-  contadores.all.textContent = total;
-  contadores.pending.textContent = pendientes;
-  contadores.completed.textContent = completadas;
+  contadores.todas.textContent = total;
+  contadores.pendientes.textContent = pendientes;
+  contadores.completadas.textContent = completadas;
 
   const mostrarBarraTareas = modoSeleccionTareas && total > 0;
   const todasTareasMarcadas = total > 0 && tareasSeleccionadas.size === total;
-  renderBarraSeleccion(barraSeleccionTareas, {
+  renderizarBarraSeleccion(barraSeleccionTareas, {
     visible: mostrarBarraTareas,
     todosMarcados: todasTareasMarcadas,
-    textTodos: todasTareasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
-    onTodos: toggleTodasTareas,
-    onEliminar: eliminarTareasSeleccionadas,
+    textoTodos: todasTareasMarcadas ? 'Quitar selección' : 'Seleccionar todas',
+    alTodos: alternarTodasTareas,
+    alEliminar: eliminarTareasSeleccionadas,
   });
 
-  renderTareas();
+  renderizarTareas();
 
   // "No hay tareas para mostrar"
   const visibles = lista ? lista.tareasFiltradas(filtroActivo).length : 0;
   estadoVacio.classList.toggle('d-none', !lista || visibles > 0);
 }
 
-function renderTareas() {
+function renderizarTareas() {
   listaTareas.replaceChildren();
   const lista = gestor.listaActiva;
   if (!lista) return;
@@ -756,68 +756,68 @@ function renderTareas() {
     li.className = 'list-group-item bg-body border rounded-3 d-flex align-items-center gap-3';
 
     if (modoSeleccionTareas) {
-      const idCheck = `check-select-tarea-${tarea.id}`;
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = idCheck;
-      checkbox.className = 'check-custom';
-      checkbox.checked = tareasSeleccionadas.has(tarea.id);
-      checkbox.addEventListener('change', () => {
-        if (checkbox.checked) tareasSeleccionadas.add(tarea.id);
+      const idCasilla = `casilla-seleccion-tarea-${tarea.id}`;
+      const casilla = document.createElement('input');
+      casilla.type = 'checkbox';
+      casilla.id = idCasilla;
+      casilla.className = 'casilla-personalizada';
+      casilla.checked = tareasSeleccionadas.has(tarea.id);
+      casilla.addEventListener('change', () => {
+        if (casilla.checked) tareasSeleccionadas.add(tarea.id);
         else tareasSeleccionadas.delete(tarea.id);
-        render();
+        renderizar();
       });
-      li.append(checkbox);
+      li.append(casilla);
 
       const contenido = document.createElement('label');
-      contenido.htmlFor = idCheck;
+      contenido.htmlFor = idCasilla;
       contenido.className = 'flex-grow-1';
       contenido.textContent = tarea.descripcion;
       li.append(contenido);
     } else {
-      const idCheck = `check-completar-${tarea.id}`;
-      const check = document.createElement('input');
-      check.type = 'checkbox';
-      check.id = idCheck;
-      check.className = 'check-custom check-completar flex-shrink-0';
-      check.checked = tarea.completada;
-      check.addEventListener('change', () => {
+      const idCasilla = `casilla-completar-${tarea.id}`;
+      const casilla = document.createElement('input');
+      casilla.type = 'checkbox';
+      casilla.id = idCasilla;
+      casilla.className = 'casilla-personalizada casilla-completar flex-shrink-0';
+      casilla.checked = tarea.completada;
+      casilla.addEventListener('change', () => {
         gestor.listaActiva.alternarTarea(tarea.id);
-        render();
+        renderizar();
       });
 
-      // Texto de la tarea, o input de renombre si esta tarea se está editando.
+      // Texto de la tarea, o entrada de renombre si esta tarea se está editando.
       let contenido;
       if (modoEdicion && tarea.id === editandoTarea) {
-        const input = crearInputRenombre(
+        const entrada = crearEntradaRenombre(
           tarea.descripcion,
-          (valor) => { gestor.listaActiva.renombrarTarea(tarea.id, valor); editandoTarea = null; render(); },
-          () => { editandoTarea = null; render(); },
+          (valor) => { gestor.listaActiva.renombrarTarea(tarea.id, valor); editandoTarea = null; renderizar(); },
+          () => { editandoTarea = null; renderizar(); },
         );
-        contenido = input;
-        li.append(check, contenido);
+        contenido = entrada;
+        li.append(casilla, contenido);
 
-        const btnConfirmar = crearBotonConfirmar('Confirmar nombre de la tarea', () => {
-          const valor = input.value.trim();
+        const botonConfirmar = crearBotonConfirmar('Confirmar nombre de la tarea', () => {
+          const valor = entrada.value.trim();
           if (valor !== '') {
             gestor.listaActiva.renombrarTarea(tarea.id, valor);
           }
           editandoTarea = null;
-          render();
+          renderizar();
         });
-        li.append(btnConfirmar);
+        li.append(botonConfirmar);
       } else {
         contenido = document.createElement('label');
-        contenido.htmlFor = idCheck;
+        contenido.htmlFor = idCasilla;
         contenido.className = 'flex-grow-1';  
         contenido.textContent = tarea.descripcion;   
-        li.append(check, contenido);
+        li.append(casilla, contenido);
 
         if (modoEdicion) {
           li.append(crearBotonLapiz('Editar nombre de la tarea', () => {
             editandoTarea = tarea.id;
             editandoLista = null;
-            render();
+            renderizar();
           }));
         }
       }
@@ -828,7 +828,7 @@ function renderTareas() {
       borrar.dataset.accion = 'borrar';
       borrar.dataset.id = tarea.id;
       borrar.setAttribute('aria-label', 'Eliminar tarea');
-      borrar.append(crearIcono('eliminar', 'icon-lg'));
+      borrar.append(crearIcono('eliminar', 'icono-lg'));
 
       li.append(borrar);
     }
@@ -838,12 +838,12 @@ function renderTareas() {
 }
 
 // ===================================================================
-// Tabs de filtro (Todas, Pendientes, Completadas)
+// Pestañas de filtro (Todas, Pendientes, Completadas)
 // ===================================================================
-tabs.forEach((tab) => {
-  tab.addEventListener('click', () => {
-    filtroActivo = tab.dataset.filter;
-    render();
+pestanas.forEach((pestana) => {
+  pestana.addEventListener('click', () => {
+    filtroActivo = pestana.dataset.filtro;
+    renderizar();
   });
 });
 
@@ -851,7 +851,7 @@ tabs.forEach((tab) => {
 // Arranque
 // ===================================================================
 mostrarFecha();
-render();
+renderizar();
 
 // ===================================================================
 // Evento instalador

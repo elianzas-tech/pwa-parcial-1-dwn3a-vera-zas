@@ -13,7 +13,7 @@
 </head>
 <body class="bg-body-tertiary">
   <div class="container-fluid p-3">
-    <div class="row g-3 app-shell">
+    <div class="row g-3 contenedor-app">
 
       <!-- ===== Banner: marca + navegación entre listas (Navbar en vertical) ===== -->
       <header class="col-12 col-lg-3">
@@ -26,7 +26,7 @@
             <h1 class="navbar-brand fs-4 fw-bold mx-0 my-0 py-0">DOIT</h1>
             <button id="instalador" type="button"
                     class="btn btn-primary btn-sm px-3 align-items-center gap-1" hidden>
-              <svg class="icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16L7 11L8.4 9.55L11 12.15V4H13V12.15L15.6 9.55L17 11L12 16ZM6 20C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V15H6V18H18V15H20V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20H6Z"/></svg>
+              <svg class="icono-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16L7 11L8.4 9.55L11 12.15V4H13V12.15L15.6 9.55L17 11L12 16ZM6 20C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V15H6V18H18V15H20V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20H6Z"/></svg>
               Instalar
             </button>
           </div>
@@ -34,10 +34,10 @@
           <!-- Título + selector propio de listas (independiente del de tareas). -->
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2 id="titulo-mis-listas" class="small fw-semibold text-uppercase text-body-secondary mb-0">Mis Listas</h2>
-            <button id="btn-seleccionar-listas" type="button"
+            <button id="boton-seleccionar-listas" type="button"
                     class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
                     title="Seleccionar listas" aria-pressed="false">
-              <svg class="icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"/></svg>
+              <svg class="icono-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"/></svg>
               Seleccionar
             </button>
           </div>
@@ -47,16 +47,16 @@
           <div id="barra-seleccion-listas" class="mb-2 d-none"></div>
 
           <!-- Las listas las inyecta js/app.js: cada una es un <li>-->
-          <ul id="listas-sidebar" class="list-group gap-2 w-100 flex-grow-1 overflow-y-auto"></ul>
+          <ul id="listas-barra-lateral" class="list-group gap-2 w-100 flex-grow-1 overflow-y-auto"></ul>
 
           <!-- Crear lista -->
-          <form id="form-nueva-lista" class="w-100 mt-3 d-flex flex-column gap-2">
+          <form id="formulario-nueva-lista" class="w-100 mt-3 d-flex flex-column gap-2">
             <label for="entrada-nueva-lista" class="form-label mb-0">Nombre de tu lista</label>
             <input type="text" id="entrada-nueva-lista" class="form-control" autocomplete="off">
             <!-- El texto del error lo pone js/app.js; -->
             <p id="error-nueva-lista" class="invalid-feedback mb-0"></p>
-            <button type="submit" id="btn-crear-lista" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
-              <svg class="icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 21V13H3V11H11V3H13V11H21V13H13V21H11Z"/></svg>
+            <button type="submit" id="boton-crear-lista" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+              <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 21V13H3V11H11V3H13V11H21V13H13V21H11Z"/></svg>
               Crear Lista
             </button>
           </form>
@@ -74,22 +74,22 @@
 
             <!-- Controles de la app:-->
             <div class="d-flex flex-wrap gap-2" role="toolbar" aria-label="Controles de la aplicación">
-              <button id="btn-seleccionar-tareas" type="button"
+              <button id="boton-seleccionar-tareas" type="button"
                       class="btn btn-outline-secondary d-flex align-items-center gap-2"
                       title="Seleccionar tareas" aria-pressed="false">
-                <svg class="icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"/></svg>
+                <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"/></svg>
                 Seleccionar
               </button>
-              <button id="btn-editar-listas" type="button"
+              <button id="boton-editar-listas" type="button"
                       class="btn btn-outline-secondary d-flex align-items-center gap-2"
                       title="Editar listas">
-                <svg class="icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19H6.425L16.2 9.225L14.775 7.8L5 17.575V19ZM3 21V16.75L16.2 3.575C16.4 3.39167 16.6208 3.25 16.8625 3.15C17.1042 3.05 17.3583 3 17.625 3C17.8917 3 18.15 3.05 18.4 3.15C18.65 3.25 18.8667 3.4 19.05 3.6L20.425 5C20.625 5.18333 20.7708 5.4 20.8625 5.65C20.9542 5.9 21 6.15 21 6.4C21 6.66667 20.9542 6.92083 20.8625 7.1625C20.7708 7.40417 20.625 7.625 20.425 7.825L7.25 21H3ZM15.475 8.525L14.775 7.8L16.2 9.225L15.475 8.525Z"/></svg>
+                <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19H6.425L16.2 9.225L14.775 7.8L5 17.575V19ZM3 21V16.75L16.2 3.575C16.4 3.39167 16.6208 3.25 16.8625 3.15C17.1042 3.05 17.3583 3 17.625 3C17.8917 3 18.15 3.05 18.4 3.15C18.65 3.25 18.8667 3.4 19.05 3.6L20.425 5C20.625 5.18333 20.7708 5.4 20.8625 5.65C20.9542 5.9 21 6.15 21 6.4C21 6.66667 20.9542 6.92083 20.8625 7.1625C20.7708 7.40417 20.625 7.625 20.425 7.825L7.25 21H3ZM15.475 8.525L14.775 7.8L16.2 9.225L15.475 8.525Z"/></svg>
                 Editar
               </button>
-              <button id="btn-tema" type="button"
+              <button id="boton-tema" type="button"
                       class="btn btn-outline-secondary d-flex align-items-center gap-2"
                       title="Cambiar tema">
-                <svg class="icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d=""/></svg>
+                <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d=""/></svg>
                 <span id="texto-tema">Oscuro</span>
               </button>
             </div>
@@ -102,28 +102,28 @@
             <div class="bg-body border rounded-3 p-2 mb-4">
               <ul class="nav nav-pills nav-justified flex-column flex-md-row gap-2" role="tablist">
                 <li class="nav-item" role="presentation">
-                  <a class="nav-link tab active py-2 d-flex align-items-center justify-content-center gap-2"
-                          type="button" data-filter="all" role="tab" aria-selected="true">
-                    Todas <span id="count-all" class="badge rounded-pill text-bg-secondary">0</span>
+                  <a class="nav-link pestana active py-2 d-flex align-items-center justify-content-center gap-2"
+                          type="button" data-filtro="todas" role="tab" aria-selected="true">
+                    Todas <span id="contador-todas" class="badge rounded-pill text-bg-secondary">0</span>
                   </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <a class="nav-link tab py-2 d-flex align-items-center justify-content-center gap-2"
-                          type="button" data-filter="pending" role="tab" aria-selected="false">
-                    Pendientes <span id="count-pending" class="badge rounded-pill text-bg-secondary">0</span>
+                  <a class="nav-link pestana py-2 d-flex align-items-center justify-content-center gap-2"
+                          type="button" data-filtro="pendientes" role="tab" aria-selected="false">
+                    Pendientes <span id="contador-pendientes" class="badge rounded-pill text-bg-secondary">0</span>
                   </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <a class="nav-link tab py-2 d-flex align-items-center justify-content-center gap-2"
-                          type="button" data-filter="completed" role="tab" aria-selected="false">
-                    Completadas <span id="count-completed" class="badge rounded-pill text-bg-secondary">0</span>
+                  <a class="nav-link pestana py-2 d-flex align-items-center justify-content-center gap-2"
+                          type="button" data-filtro="completadas" role="tab" aria-selected="false">
+                    Completadas <span id="contador-completadas" class="badge rounded-pill text-bg-secondary">0</span>
                   </a>
                 </li>
               </ul>
             </div>
 
             <!-- El form de agregar tarea lo arma js/app.js acá dentro. -->
-            <div id="contenedor-form-tarea">
+            <div id="contenedor-formulario-tarea">
               <h4 class="h5 fw-semibold mb-3">Tus tareas</h4>
             </div>
 
@@ -149,18 +149,18 @@
 
   <!-- Contenedor de avisos (toasts). El texto lo pone js/app.js.-->
   <div class="toast-container position-fixed bottom-0 start-0 w-100 p-3 d-flex flex-column align-items-center align-items-lg-end">
-    <div id="toast-aviso" class="toast text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="notificacion-aviso" class="toast text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
-        <p id="toast-aviso-texto" class="toast-body mb-0"></p>
+        <p id="notificacion-aviso-texto" class="toast-body mb-0"></p>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
       </div>
     </div>
 
     <!-- Toast de "tarea/lista eliminada" con opción de deshacer. Lo maneja js/app.js. -->
-    <div id="toast-deshacer" class="toast bg-body shadow" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
+    <div id="notificacion-deshacer" class="toast bg-body shadow" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
       <div class="d-flex align-items-center gap-2 pe-2">
-        <p id="toast-deshacer-texto" class="toast-body mb-0 flex-grow-1"></p>
-        <button type="button" id="toast-deshacer-btn" class="btn btn-primary btn-sm fw-semibold">Deshacer</button>
+        <p id="notificacion-deshacer-texto" class="toast-body mb-0 flex-grow-1"></p>
+        <button type="button" id="notificacion-deshacer-boton" class="btn btn-primary btn-sm fw-semibold">Deshacer</button>
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
       </div>
     </div>
@@ -168,7 +168,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./js/iconos.js"></script>
-  <script src="./js/claro_oscuro.js"></script>
+  <script src="./js/claro-oscuro.js"></script>
   <script src="./js/app.js"></script>
 </body>
 </html>

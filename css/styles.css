@@ -1,7 +1,7 @@
 /* Estilos propios (la base es Bootstrap 5.3) */
 
 /* Alto mínimo de la app: toda la pantalla menos el padding */
-.app-shell {
+.contenedor-app {
   min-height: calc(100dvh - 2rem);
 }
 
@@ -28,7 +28,7 @@
   --bs-border-color-translucent: #2c2c2c;
 }
 
-/* Misma altura para los encabezados del sidebar y del panel */
+/* Misma altura para los encabezados de la barra lateral y del panel */
 .franja-encabezado {
   min-height: 3.5rem;
 }
@@ -46,41 +46,41 @@
 }
 
 /* Permite que el listado de listas scrollee */
-#listas-sidebar {
+#listas-barra-lateral {
   min-height: 0;
 }
 
 /* Lista activa */
-#listas-sidebar .list-group-item.active {
+#listas-barra-lateral .list-group-item.active {
   background-color: var(--bs-primary);
   border-color: var(--bs-primary);
   color: #000;
 }
 
 /* Toast "Deshacer" */
-#toast-deshacer {
+#notificacion-deshacer {
   border: 1px solid var(--bs-border-color);
   border-left: 4px solid var(--bs-primary);
 }
-#toast-deshacer-btn {
+#notificacion-deshacer-boton {
   color: #000;
 }
 
-/* Desktop: sidebar fijo con el alto de la pantalla */
+/* Desktop: barra lateral fija con el alto de la pantalla */
 @media (min-width: 992px) {
-  .app-shell > header {
+  .contenedor-app > header {
     position: sticky;
     top: 1rem;
     height: calc(100dvh - 2rem);
   }
 
-  .app-shell > header > .navbar {
+  .contenedor-app > header > .navbar {
     overflow: hidden;
   }
 }
 
 /* Checkbox personalizado con íconos SVG */
-.check-custom {
+.casilla-personalizada {
   appearance: none;
   -webkit-appearance: none;
   width: 22px;
@@ -89,38 +89,38 @@
   flex-shrink: 0;
   cursor: pointer;
   background-color: currentColor;
-  -webkit-mask: url('../images/check_box_outline_blank.svg') no-repeat center / contain;
-  mask: url('../images/check_box_outline_blank.svg') no-repeat center / contain;
+  -webkit-mask: url('../imagenes/casilla-vacia-con-borde.svg') no-repeat center / contain;
+  mask: url('../imagenes/casilla-vacia-con-borde.svg') no-repeat center / contain;
 }
-.check-custom:checked {
-  -webkit-mask-image: url('../images/check_box_selected.svg');
-  mask-image: url('../images/check_box_selected.svg');
+.casilla-personalizada:checked {
+  -webkit-mask-image: url('../imagenes/casilla-seleccionada.svg');
+  mask-image: url('../imagenes/casilla-seleccionada.svg');
 }
 
 /* Tarea completada */
-.check-custom.check-completar:checked {
-  -webkit-mask-image: url('../images/check_box_completed.svg');
-  mask-image: url('../images/check_box_completed.svg');
+.casilla-personalizada.casilla-completar:checked {
+  -webkit-mask-image: url('../imagenes/casilla-completada.svg');
+  mask-image: url('../imagenes/casilla-completada.svg');
   background-color: #2ECC71;
 }
 
-.check-custom + label {
+.casilla-personalizada + label {
   cursor: pointer;
 }
 
 /* Tamaños de íconos */
-.icon-sm {
+.icono-sm {
   width: 16px;
   height: 16px;
 }
-.icon-md {
+.icono-md {
   width: 18px;
   height: 18px;
 }
-.icon-lg {
+.icono-lg {
   width: 20px;
   height: 20px;
 }
-.icon-sm, .icon-md, .icon-lg{
+.icono-sm, .icono-md, .icono-lg{
   fill: currentColor;
 }

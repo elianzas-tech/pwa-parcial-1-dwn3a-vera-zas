@@ -9,14 +9,14 @@ const ICONOS = {
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 function crearIcono(nombre, clase) {
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('class', clase);
-  svg.setAttribute('aria-hidden', 'true');
+  const icono = document.createElementNS(SVG_NS, 'svg');
+  icono.setAttribute('viewBox', '0 0 24 24');
+  icono.setAttribute('class', clase);
+  icono.setAttribute('aria-hidden', 'true');
 
-  const path = document.createElementNS(SVG_NS, 'path');
-  path.setAttribute('d', ICONOS[nombre]);
+  const trazo = document.createElementNS(SVG_NS, 'path');
+  trazo.setAttribute('d', ICONOS[nombre]);
 
-  svg.append(path);
-  return svg;
+  icono.append(trazo);
+  return icono;
 }

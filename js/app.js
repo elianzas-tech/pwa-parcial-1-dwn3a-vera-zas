@@ -362,13 +362,13 @@ function renderizarBarraSeleccion(contenedor, { visible, todosMarcados, textoTod
 
   filaTodos.append(casillaTodos, document.createTextNode(textoTodos));
 
-  const botalEliminar = document.createElement('button');
-  botalEliminar.type = 'button';
-  botalEliminar.className = 'btn btn-danger btn-sm d-flex align-items-center gap-2';
-  botalEliminar.append(crearIcono('eliminar', 'icono-sm'), document.createTextNode('Eliminar'));
-  botalEliminar.addEventListener('click', alEliminar);
+  const botonEliminar = document.createElement('button');
+  botonEliminar.type = 'button';
+  botonEliminar.className = 'btn btn-danger btn-sm d-flex align-items-center gap-2';
+  botonEliminar.append(crearIcono('eliminar', 'icono-sm'), document.createTextNode('Eliminar'));
+  botonEliminar.addEventListener('click', alEliminar);
 
-  fila.append(filaTodos, botalEliminar);
+  fila.append(filaTodos, botonEliminar);
   contenedor.append(fila);
 }
 

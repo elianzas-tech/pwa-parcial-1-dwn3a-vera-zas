@@ -102,19 +102,19 @@
             <div class="bg-body border rounded-3 p-2 mb-4">
               <ul class="nav nav-pills nav-justified flex-column flex-md-row gap-2" role="tablist">
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link pestanaactive py-2 d-flex align-items-center justify-content-center gap-2"
+                  <button class="nav-link pestana active py-2 d-flex align-items-center justify-content-center gap-2"
                           type="button" data-filtro="todas" role="tab" aria-selected="true">
                     Todas <span id="contador-todas" class="badge rounded-pill text-bg-secondary">0</span>
                   </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link pestanapy-2 d-flex align-items-center justify-content-center gap-2"
+                  <button class="nav-link pestana py-2 d-flex align-items-center justify-content-center gap-2"
                           type="button" data-filtro="pendientes" role="tab" aria-selected="false">
                     Pendientes <span id="contador-pendientes" class="badge rounded-pill text-bg-secondary">0</span>
                   </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link pestanapy-2 d-flex align-items-center justify-content-center gap-2"
+                  <button class="nav-link pestana py-2 d-flex align-items-center justify-content-center gap-2"
                           type="button" data-filtro="completadas" role="tab" aria-selected="false">
                     Completadas <span id="contador-completadas" class="badge rounded-pill text-bg-secondary">0</span>
                   </button>
@@ -149,7 +149,7 @@
 
   <!-- Contenedor de avisos (toasts). El texto lo pone js/app.js.-->
   <div class="toast-container position-fixed bottom-0 start-0 w-100 p-3 d-flex flex-column align-items-center align-items-lg-end">
-    <div id="notificacion-aviso"class="toast text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="notificacion-aviso" class="toast text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <p id="notificacion-aviso-texto" class="toast-body mb-0"></p>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
@@ -157,7 +157,7 @@
     </div>
 
     <!-- Toast de "tarea/lista eliminada" con opción de deshacer. Lo maneja js/app.js. -->
-    <div id="notificacion-deshacer"class="toast bg-body shadow" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
+    <div id="notificacion-deshacer" class="toast bg-body shadow" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
       <div class="d-flex align-items-center gap-2 pe-2">
         <p id="notificacion-deshacer-texto" class="toast-body mb-0 flex-grow-1"></p>
         <button type="button" id="notificacion-deshacer-boton" class="btn btn-primary btn-sm fw-semibold">Deshacer</button>

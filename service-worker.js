@@ -1,5 +1,5 @@
-const PRE_CACHE_NOMBRE = "pre-cacahe-v1.7";
-const DIN_CACHE_NOMBRE = "din-cacahe-v1.7";
+const PRE_CACHE_NOMBRE = "pre-cacahe-v1.8";
+const DIN_CACHE_NOMBRE = "din-cacahe-v1.8";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',

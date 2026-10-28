@@ -1,16 +1,16 @@
 'use strict';
 
 /* ===================================================================
-   claro_oscuro.js - cambio de tema claro / oscuro.
+   claro-oscuro.js - cambio de tema claro / oscuro.
 
    - Alterna data-bs-theme en <html> (modo oscuro nativo de Bootstrap 5.3).
-   - Cambia el icono del boton #btn-tema: luna en oscuro, sol en claro.
+   - Cambia el icono del boton #boton-tema: luna en oscuro, sol en claro.
    - Persiste la eleccion en localStorage para la proxima visita.
    =================================================================== */
 
 const raizTema  = document.documentElement; // <html>, ahi vive data-bs-theme
-const btnTema   = document.getElementById('btn-tema');
-const iconoTema = btnTema.querySelector('path');
+const botonTema = document.getElementById('boton-tema');
+const iconoTema = botonTema.querySelector('path');
 const textoTema = document.getElementById('texto-tema');
 
 function aplicarTema(tema) {
@@ -21,7 +21,7 @@ function aplicarTema(tema) {
   textoTema.textContent = esOscuro ? 'Oscuro' : 'Claro';
 }
 
-btnTema.addEventListener('click', () => {
+botonTema.addEventListener('click', () => {
   const actual = raizTema.getAttribute('data-bs-theme');
   const nuevo  = actual === 'dark' ? 'light' : 'dark';
   aplicarTema(nuevo);

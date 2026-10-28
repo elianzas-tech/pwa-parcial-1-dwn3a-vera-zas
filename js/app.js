@@ -313,8 +313,14 @@ function crearBotonConfirmar(aria, alHacerClic) {
 
 // Input inline de renombre. Enter/blur guardan; Escape cancela; vacío cancela.
 function crearEntradaRenombre(valorInicial, alGuardar, alCancelar) {
+  const label = document.createElement('label');
+  label.className = 'form-label d-none';
+  label.htmlFor = 'editar-texto';
+  label.textContent = 'Edita el texto';
+
   const entrada = document.createElement('input');
   entrada.type = 'text';
+  entrada.id = 'editar-texto';
   entrada.className = 'form-control form-control-sm flex-grow-1';
   entrada.value = valorInicial;
   entrada.addEventListener('click', (e) => e.stopPropagation());

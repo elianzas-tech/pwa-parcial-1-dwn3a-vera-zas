@@ -311,10 +311,10 @@ function crearBotonConfirmar(aria, alHacerClic) {
   return boton;
 }
 
-// Input inline de renombre. Enter/blur guardan; Escape cancela; vacío cancela.
+// Input inline de renombre. Enter guarda (el botón de confirmar también); Escape cancela; vacío cancela.
 function crearEntradaRenombre(valorInicial, alGuardar, alCancelar) {
   const label = document.createElement('label');
-  label.className = 'form-label d-none';
+  label.className = 'visually-hidden';
   label.htmlFor = 'editar-texto';
   label.textContent = 'Edita el texto';
 
@@ -326,21 +326,21 @@ function crearEntradaRenombre(valorInicial, alGuardar, alCancelar) {
   entrada.addEventListener('click', (e) => e.stopPropagation());
 
   entrada.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); entrada.blur(); }
-    if (e.key === 'Escape') { entrada.dataset.cancelar = '1'; entrada.blur(); }
-  });
-  entrada.addEventListener('blur', () => {
-    const valor = entrada.value.trim();
-    if (entrada.dataset.cancelar || valor === ''){
-      alCancelar();
-    } else { 
-      alGuardar(valor); 
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const valor = entrada.value.trim();
+      if (valor === '') {
+        alCancelar();
+      } else {
+        alGuardar(valor);
+      }
     }
+    if (e.key === 'Escape') { alCancelar(); }
   });
 
   // Foco una vez insertado en el DOM.
   requestAnimationFrame(() => { entrada.focus(); entrada.select(); });
-  return entrada;
+  return { label, entrada };
 }
 
 // ===================================================================
@@ -668,7 +668,7 @@ function renderizarBarraLateral() {
       fila.dataset.id = lista.id;
 
       if (lista.id === editandoLista) {
-        const entrada = crearEntradaRenombre(
+        const { label, entrada } = crearEntradaRenombre(
           lista.nombre,
           (valor) => { gestor.renombrarLista(lista.id, valor); editandoLista = null; renderizar(); },
           () => { editandoLista = null; renderizar(); },
@@ -681,7 +681,7 @@ function renderizarBarraLateral() {
           editandoLista = null;
           renderizar();
         });
-        fila.append(entrada, botonConfirmar);
+        fila.append(label, entrada, botonConfirmar);
       } else {
         const nombre = document.createElement('span');
         nombre.className = 'flex-grow-1 text-truncate';
@@ -795,13 +795,13 @@ function renderizarTareas() {
       // Texto de la tarea, o entrada de renombre si esta tarea se está editando.
       let contenido;
       if (modoEdicion && tarea.id === editandoTarea) {
-        const entrada = crearEntradaRenombre(
+        const { label, entrada } = crearEntradaRenombre(
           tarea.descripcion,
           (valor) => { gestor.listaActiva.renombrarTarea(tarea.id, valor); editandoTarea = null; renderizar(); },
           () => { editandoTarea = null; renderizar(); },
         );
         contenido = entrada;
-        li.append(casilla, contenido);
+        li.append(casilla, label, contenido);
 
         const botonConfirmar = crearBotonConfirmar('Confirmar nombre de la tarea', () => {
           const valor = entrada.value.trim();

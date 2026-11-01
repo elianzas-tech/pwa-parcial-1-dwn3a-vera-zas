@@ -159,8 +159,6 @@ const listasBarraLateral = document.getElementById('listas-barra-lateral');
 const formularioNuevaLista = document.getElementById('formulario-nueva-lista');
 
 const entradaNuevaLista = document.getElementById('entrada-nueva-lista');
-entradaNuevaLista.setAttribute('aria-invalid', 'true');
-entradaNuevaLista.setAttribute('aria-describedby', 'error-nueva-lista');
 
 const errorNuevaLista = document.getElementById('error-nueva-lista');
 const botonSeleccionarListas = document.getElementById('boton-seleccionar-listas');
@@ -337,6 +335,21 @@ function crearEntradaRenombre(valorInicial, alGuardar, alCancelar) {
   return entrada;
 }
 
+let usandoTeclado = false;
+document.addEventListener('keydown', () => { usandoTeclado = true; });
+document.addEventListener('mousedown', () => { usandoTeclado = false; });
+
+function resaltarFilaAlEnfocar(casilla, fila) {
+  casilla.addEventListener('focus', () => {
+    if (!usandoTeclado) return;
+    fila.style.outline = '2px solid var(--bs-link-color)';
+    fila.style.outlineOffset = '2px';
+  });
+  casilla.addEventListener('blur', () => {
+    fila.style.outline = '';
+  });
+}
+
 // ===================================================================
 // Selección múltiple + borrado (modo "Seleccionar")
 // ===================================================================
@@ -356,11 +369,13 @@ function renderizarBarraSeleccion(contenedor, { visible, todosMarcados, textoTod
 
   const casillaTodos = document.createElement('input');
   casillaTodos.type = 'checkbox';
+  casillaTodos.id = `${contenedor.id}-todos`;
   casillaTodos.className = 'casilla-personalizada';
   casillaTodos.checked = todosMarcados;
   casillaTodos.addEventListener('change', alTodos);
 
   filaTodos.append(casillaTodos, document.createTextNode(textoTodos));
+  resaltarFilaAlEnfocar(casillaTodos, filaTodos);
 
   const botonEliminar = document.createElement('button');
   botonEliminar.type = 'button';
@@ -415,12 +430,16 @@ function eliminarTareasSeleccionadas() {
 
 function limpiarErrorLista() {
   entradaNuevaLista.classList.remove('is-invalid');
+  entradaNuevaLista.removeAttribute('aria-invalid');
+  entradaNuevaLista.removeAttribute('aria-describedby');
   errorNuevaLista.textContent = '';
 }
 
 function mostrarErrorLista(mensaje) {
   errorNuevaLista.textContent = mensaje;
   entradaNuevaLista.classList.add('is-invalid');
+  entradaNuevaLista.setAttribute('aria-invalid', 'true');
+  entradaNuevaLista.setAttribute('aria-describedby', 'error-nueva-lista');
   entradaNuevaLista.focus();
 }
 
@@ -461,8 +480,6 @@ function crearFormularioTarea() {
   entrada.id = 'entrada-tarea';
   entrada.className = 'form-control';
   entrada.autocomplete = 'off';
-  entrada.ariaInvalid = true;
-  entrada.setAttribute('aria-describedby', 'error-nueva-tarea');
 
   const boton = document.createElement('button');
   boton.type = 'submit';
@@ -480,6 +497,8 @@ function crearFormularioTarea() {
 
   const limpiarError = () => {
     entrada.classList.remove('is-invalid');
+    entrada.removeAttribute('aria-invalid');
+    entrada.removeAttribute('aria-describedby');
     error.classList.add('d-none');
   };
 
@@ -490,6 +509,8 @@ function crearFormularioTarea() {
     const descripcion = entrada.value.trim();
     if (descripcion === '') {
       entrada.classList.add('is-invalid');
+      entrada.setAttribute('aria-invalid', 'true');
+      entrada.setAttribute('aria-describedby', 'error-nueva-tarea');
       error.classList.remove('d-none');
       entrada.focus();
       return;
@@ -603,11 +624,15 @@ function actualizarBotonesModo() {
 }
 
 function renderizar() {
+  const idConFoco = document.activeElement?.id;
+
   actualizarPestanas();
   actualizarBotonesModo();
   estadoSinListas.classList.toggle('d-none', gestor.hayListas);
   renderizarBarraLateral();
   renderizarPanel();
+
+  if (idConFoco) document.getElementById(idConFoco)?.focus();
 }
 
 function renderizarBarraLateral() {
@@ -652,6 +677,7 @@ function renderizarBarraLateral() {
 
       fila.append(casilla, nombre);
       listasBarraLateral.append(fila);
+      resaltarFilaAlEnfocar(casilla, fila);
       return;
     }
 
@@ -699,6 +725,7 @@ function renderizarBarraLateral() {
     enlace.href = `#lista-${lista.id}`;
     enlace.className = `${base} list-group-item-action w-100 ${relleno}`;
     enlace.dataset.id = lista.id;
+    enlace.id = `enlace-lista-${lista.id}`;
     enlace.textContent = lista.nombre;
     if (esActiva) enlace.setAttribute('aria-current', 'page');
 
@@ -768,6 +795,7 @@ function renderizarTareas() {
         renderizar();
       });
       li.append(casilla);
+      resaltarFilaAlEnfocar(casilla, li);
 
       const contenido = document.createElement('label');
       contenido.htmlFor = idCasilla;
@@ -785,6 +813,7 @@ function renderizarTareas() {
         gestor.listaActiva.alternarTarea(tarea.id);
         renderizar();
       });
+      resaltarFilaAlEnfocar(casilla, li);
 
       // Texto de la tarea, o entrada de renombre si esta tarea se está editando.
       let contenido;
@@ -827,6 +856,7 @@ function renderizarTareas() {
       borrar.className = 'btn p-0 border-0 flex-shrink-0';
       borrar.dataset.accion = 'borrar';
       borrar.dataset.id = tarea.id;
+      borrar.id = `borrar-${tarea.id}`;
       borrar.setAttribute('aria-label', 'Eliminar tarea');
       borrar.append(crearIcono('eliminar', 'icono-lg'));
 
@@ -841,7 +871,8 @@ function renderizarTareas() {
 // Pestañas de filtro (Todas, Pendientes, Completadas)
 // ===================================================================
 pestanas.forEach((pestana) => {
-  pestana.addEventListener('click', () => {
+  pestana.addEventListener('click', (e) => {
+    e.preventDefault();
     filtroActivo = pestana.dataset.filtro;
     renderizar();
   });

@@ -54,7 +54,6 @@
 #listas-barra-lateral .list-group-item.active {
   background-color: var(--bs-primary);
   border-color: var(--bs-primary);
-  color: #000;
 }
 
 /* Toast "Deshacer" */
@@ -123,4 +122,10 @@
 }
 .icono-sm, .icono-md, .icono-lg{
   fill: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--bs-link-color) !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
 }

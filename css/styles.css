@@ -129,3 +129,16 @@
   outline-offset: 2px;
   box-shadow: none !important;
 }
+
+/* Botones de contorno con mas contraste en tema oscuro.
+   En tema claro se mantiene el gris de Bootstrap, que ya contrasta con el fondo blanco. */
+[data-bs-theme="dark"] .btn-outline-secondary {
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-border-color: var(--bs-light);
+  --bs-btn-hover-color: var(--bs-dark);
+  --bs-btn-hover-bg: var(--bs-light);
+  --bs-btn-hover-border-color: var(--bs-light);
+  --bs-btn-active-color: var(--bs-dark);
+  --bs-btn-active-bg: var(--bs-light);
+  --bs-btn-active-border-color: var(--bs-light);
+}

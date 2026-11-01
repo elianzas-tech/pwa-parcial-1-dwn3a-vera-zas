@@ -1,5 +1,5 @@
-const PRE_CACHE_NOMBRE = "pre-cacahe-v1.8";
-const DIN_CACHE_NOMBRE = "din-cacahe-v1.8";
+const PRE_CACHE_NOMBRE = "pre-cache-v2.0";
+const DIN_CACHE_NOMBRE = "din-cache-v2.0";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',
@@ -26,9 +26,6 @@ const PRE_CACHE_RECURSOS = [
 self.addEventListener('install', (evento) => {
     console.log('Se esta instalando el service-worker');
 
-    // Activa la version nueva sin esperar a que se cierren las pestañas abiertas.
-    self.skipWaiting();
-
     evento.waitUntil(
         caches.open(PRE_CACHE_NOMBRE)
         .then(cache => {
@@ -38,37 +35,40 @@ self.addEventListener('install', (evento) => {
     );
 })
 
-/* Estrategia network-first: siempre intenta traer la ultima version de la red
-   y solo usa la cache cuando no hay conexion. */
+/* Estrategia cache-first: primero busca el recurso en la cache y, si no esta,
+   lo trae de la red y lo guarda en la cache dinamica. */
 self.addEventListener('fetch', (evento) => {
     console.log("Se intercepto la peticion a:", evento.request.url);
 
+    // Solo se cachean peticiones GET http/https (no POST ni chrome-extension://).
     if (evento.request.method !== "GET" || !evento.request.url.startsWith('http')) {
         return;
     }
 
     evento.respondWith(
-        fetch(evento.request)
-            .then(respuesta => {
-                if (!respuesta.ok) {
-                    return respuesta;
+        caches.match(evento.request)
+            .then(respuestaCache => {
+                if (respuestaCache !== undefined) {
+                    console.log("Recurso obtenido de la cache.");
+                    return respuestaCache;
                 }
 
-                console.log("Recurso obtenido de la red, se actualiza la cache.");
-                return caches.open(DIN_CACHE_NOMBRE)
-                    .then(cache => {
-                        cache.put(evento.request, respuesta.clone());
+                return fetch(evento.request)
+                    .then(respuesta => {
+                        // Las respuestas con error no se guardan.
+                        if (!respuesta.ok) {
+                            return respuesta;
+                        }
 
-                        return respuesta;
+                        console.log("Recurso obtenido de la red, se guarda en la cache dinamica.");
+                        return caches.open(DIN_CACHE_NOMBRE)
+                            .then(cache => {
+                                // Se clona porque la respuesta se usa dos veces: se guarda y se devuelve.
+                                cache.put(evento.request, respuesta.clone());
+
+                                return respuesta;
+                            });
                     });
-            })
-            .catch(() => {
-                console.log("Sin conexion, se busca el recurso en la cache.");
-
-                // Primero la cache dinamica (tiene la copia mas reciente) y despues la de pre-caching.
-                return caches.open(DIN_CACHE_NOMBRE)
-                    .then(cache => cache.match(evento.request))
-                    .then(respuestaCache => respuestaCache || caches.match(evento.request));
             })
     );
 })
@@ -77,7 +77,7 @@ self.addEventListener('fetch', (evento) => {
 self.addEventListener('activate', (evento) => {
     console.log('El service-worker esta activo');
 
-    // Borra las caches de versiones anteriores y toma el control de las pestañas abiertas.
+    // Borra las caches de versiones anteriores para que se use la version nueva.
     evento.waitUntil(
         caches.keys()
         .then(nombres => Promise.all(
@@ -85,6 +85,5 @@ self.addEventListener('activate', (evento) => {
                 .filter(nombre => nombre !== PRE_CACHE_NOMBRE && nombre !== DIN_CACHE_NOMBRE)
                 .map(nombre => caches.delete(nombre))
         ))
-        .then(() => self.clients.claim())
     );
 })

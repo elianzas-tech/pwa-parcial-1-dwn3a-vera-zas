@@ -1,6 +1,9 @@
 {
   "name": "DOIT",
   "short_name": "DOIT",
+  "description": "Es una app que permite al usario crear sus propias listas de tareas para poder organizarse, y poder ver con facilidad lo que ya completo y lo que tiene pendiente.",
+  "categories": ["productividad", "organizacion", "hogar", "estudio", "trabajo", "estilo de vida" ],
+  "lang": "es-AR",
   "icons": [
     {
       "src": "./imagenes/iconos/icono-48.png",

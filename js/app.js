@@ -164,6 +164,7 @@ const errorNuevaLista = document.getElementById('error-nueva-lista');
 const botonSeleccionarListas = document.getElementById('boton-seleccionar-listas');
 const botonSeleccionarTareas = document.getElementById('boton-seleccionar-tareas');
 const botonEditar = document.getElementById('boton-editar-listas');
+const botonNotificar = document.getElementById('boton-notificar');
 const barraSeleccionListas = document.getElementById('barra-seleccion-listas');
 
 // Panel principal
@@ -923,3 +924,10 @@ window.addEventListener('appinstalled', () => {
   eventoInstalacion = null;
   botonInstalar.hidden = true;
 });
+
+// ===================================================================
+// Notificacion Push
+// ===================================================================
+botonNotificar.addEventListener('click', solicitarPermisoNoti);
+
+function solicitarPermisoNoti() {}

@@ -23,9 +23,14 @@ class Tarea {
   #descripcion;
   #completada = false;
 
-  constructor(descripcion) {
-    this.#id = crypto.randomUUID();
+  constructor(descripcion, id = crypto.randomUUID(), completada = false) {
+    this.#id = id;
     this.#descripcion = descripcion;
+    this.#completada = completada;
+  }
+
+  aObjeto(){
+    return {id: this.#id, descripcion: this.#descripcion, completada: this.#completada};
   }
 
   get id() { return this.#id; }
@@ -53,11 +58,22 @@ class Lista {
   #nombre;
   #tareas = [];
 
-  constructor(nombre) {
-    this.#id = ++Lista.#ultimoId;
+  constructor(nombre, id = ++Lista.#ultimoId) {
+    this.#id = id;
     this.#nombre = nombre;
+    if(id>Lista.#ultimoId) Lista.#ultimoId = id; // No repetir ids al cargar
   }
 
+  aObjeto(){
+    return{id: this.#id, nombre: this.#nombre, tareas: this.#tareas.map(t => t.aObjeto())};
+  }
+
+  static desdeObjeto(objeto){
+    const lista = new Lista(objeto.nombre, objeto.id);
+    lista.#tareas = objeto.tareas.map((t) => new Tarea(t.descripcion, t.id, t.completada));
+    return lista;
+  }
+  
   get id() { return this.#id; }
   get nombre() { return this.#nombre; }
   get tareas() { return [...this.#tareas]; }
@@ -132,6 +148,12 @@ class GestorListas {
     if (this.#idListaActiva === id) {
       this.#idListaActiva = this.#listas[0]?.id ?? null;
     }
+  }
+  cargarListas(listas, idActiva) {
+    this.#listas = listas;
+    this.#idListaActiva = listas.some((l) => l.id === idActiva)
+    ? idActiva
+    : listas[0]?.id ?? null;
   }
 
   eliminarListas(ids) {
@@ -640,6 +662,7 @@ function renderizar() {
   renderizarPanel();
 
   if (idConFoco) document.getElementById(idConFoco)?.focus();
+  guardarListas();
 }
 
 function renderizarBarraLateral() {
@@ -884,6 +907,67 @@ pestanas.forEach((pestana) => {
     renderizar();
   });
 });
+
+// ===================================================================
+// IndexedDB
+// ===================================================================
+const BD_NOMBRE = "tareas-doit";
+const BD_VERSION = 1;
+const BD_ALMACEN_LISTAS = "listas";
+const LS_LISTA_ACTIVA = "lista-activa";
+let bd = null;
+
+const solicitudApertura = indexedDB.open(BD_NOMBRE, BD_VERSION);
+
+solicitudApertura.addEventListener("error", () => {
+  console.log("No se pudo abrir la base de datos:", solicitudApertura.error);
+});
+
+// Solo corre la primera vez (o si sube BD_VERSION): crea la estructura.
+solicitudApertura.addEventListener("upgradeneeded", (evento) => {
+  const bd = evento.target.result;
+  bd.createObjectStore(BD_ALMACEN_LISTAS, { keyPath: "id" });
+});
+
+// La base está lista para usar.
+solicitudApertura.addEventListener("success", (evento) => {
+  bd = evento.target.result;
+  obtenerListas();
+});
+
+// Lee las listas guardadas y las carga en el gestor.
+function obtenerListas() {
+  const transaccion = bd.transaction(BD_ALMACEN_LISTAS, "readonly");
+  const solicitud = transaccion.objectStore(BD_ALMACEN_LISTAS).getAll();
+
+  solicitud.addEventListener("success", () => {
+    const objetos = solicitud.result;
+    if (objetos.length > 0) { // si está vacía, quedan las listas por defecto
+      let idActiva = null;
+      try {
+        idActiva = JSON.parse(localStorage.getItem(LS_LISTA_ACTIVA));
+      } catch {}
+      gestor.cargarListas(objetos.map((o) => Lista.desdeObjeto(o)), idActiva);
+    }
+    renderizar();
+  });
+
+  solicitud.addEventListener("error", () => {
+    console.log("No se pudieron leer las listas:", solicitud.error);
+  });
+}
+
+function guardarListas() {
+  if (bd === null) return; // la base todavía no abrió
+
+  const transaccion = bd.transaction(BD_ALMACEN_LISTAS, "readwrite");
+  const almacenListas = transaccion.objectStore(BD_ALMACEN_LISTAS);
+
+  almacenListas.clear();
+  gestor.listas.forEach((lista) => almacenListas.put(lista.aObjeto()));
+
+  localStorage.setItem(LS_LISTA_ACTIVA, JSON.stringify(gestor.listaActiva?.id ?? null));
+}
 
 // ===================================================================
 // Arranque

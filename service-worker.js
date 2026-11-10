@@ -8,6 +8,7 @@ const PRE_CACHE_RECURSOS = [
     './favicon.svg',
     './css/styles.css',
     './js/app.js',
+    './js/compartir.js',
     './js/iconos.js',
     './js/claro-oscuro.js',
     './imagenes/casilla-completada.svg',
@@ -15,16 +16,22 @@ const PRE_CACHE_RECURSOS = [
     './imagenes/casilla-seleccionada.svg',
     './imagenes/iconos/icono-152.png',
     './imagenes/iconos/icono-48.png',
+    './imagenes/iconos/icono-192.png',
+    './imagenes/iconos/icono-maskable-512.png',
     './imagenes/iconos/icono-512.png',
     //BOOTSTRAP CDN
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
+    'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
 ]
 
 
 /* Instalacion del service-worker*/
 self.addEventListener('install', (evento) => {
     console.log('Se esta instalando el service-worker');
+
+    // Activa la version nueva sin esperar a que se cierren todas las pestanas.
+    self.skipWaiting();
 
     evento.waitUntil(
         caches.open(PRE_CACHE_NOMBRE)

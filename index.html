@@ -6,9 +6,11 @@
   <title>DOIT</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./imagenes/iconos/icono-180.png">
   <meta name="theme-color" content="#000000">
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body class="bg-body-tertiary">
@@ -92,6 +94,28 @@
                 <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19H6.425L16.2 9.225L14.775 7.8L5 17.575V19ZM3 21V16.75L16.2 3.575C16.4 3.39167 16.6208 3.25 16.8625 3.15C17.1042 3.05 17.3583 3 17.625 3C17.8917 3 18.15 3.05 18.4 3.15C18.65 3.25 18.8667 3.4 19.05 3.6L20.425 5C20.625 5.18333 20.7708 5.4 20.8625 5.65C20.9542 5.9 21 6.15 21 6.4C21 6.66667 20.9542 6.92083 20.8625 7.1625C20.7708 7.40417 20.625 7.625 20.425 7.825L7.25 21H3ZM15.475 8.525L14.775 7.8L16.2 9.225L15.475 8.525Z"/></svg>
                 Notificar
               </button>
+              <!-- Desplegable: compartir la lista como texto o como archivo .txt -->
+              <div class="dropdown">
+                <button id="boton-compartir" type="button"
+                        class="btn btn-outline-secondary d-flex align-items-center gap-2 dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false"
+                        title="Compartir la lista activa">
+                  <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                  Compartir
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <button type="button" id="opcion-compartir-texto" class="dropdown-item d-flex align-items-center gap-2">
+                      <i class="bi bi-chat-left-text" aria-hidden="true"></i> Como texto
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" id="opcion-compartir-archivo" class="dropdown-item d-flex align-items-center gap-2">
+                      <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Como archivo .txt
+                    </button>
+                  </li>
+                </ul>
+              </div>
               <button id="boton-tema" type="button"
                       class="btn btn-outline-secondary d-flex align-items-center gap-2"
                       title="Cambiar tema">
@@ -187,9 +211,43 @@
 
   </div>
 
+  <!-- Modal para compartir cuando el navegador no soporta navigator.share.
+       Lo completa y lo abre js/compartir.js. -->
+  <div id="modal-compartir" class="modal fade" tabindex="-1" aria-labelledby="titulo-modal-compartir" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="titulo-modal-compartir" class="modal-title h5">Compartir lista</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-3">
+          <label for="texto-modal-compartir" class="form-label mb-0">Texto a compartir</label>
+          <textarea id="texto-modal-compartir" class="form-control" rows="7" readonly></textarea>
+          <button type="button" id="boton-copiar-compartir" class="btn btn-primary" aria-live="polite">Copiar texto</button>
+          <div class="d-flex flex-wrap gap-2" role="group" aria-label="Compartir en">
+            <a id="enlace-whatsapp" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
+              <i class="bi bi-whatsapp" aria-hidden="true"></i> WhatsApp
+            </a>
+            <a id="enlace-facebook" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
+              <i class="bi bi-facebook" aria-hidden="true"></i> Facebook
+            </a>
+            <a id="enlace-instagram" href="https://www.instagram.com/direct/inbox/" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
+              <i class="bi bi-instagram" aria-hidden="true"></i> Instagram
+            </a>
+            <a id="enlace-correo" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-envelope" aria-hidden="true"></i> Correo
+            </a>
+          </div>
+          <p class="small text-body-secondary mb-0">Instagram: el texto se copia para que lo pegues en el chat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./js/iconos.js"></script>
   <script src="./js/claro-oscuro.js"></script>
   <script src="./js/app.js"></script>
+  <script src="./js/compartir.js"></script>
 </body>
 </html>

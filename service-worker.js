@@ -102,7 +102,7 @@ self.addEventListener('push', (evento) => {
     //Definimos el contenido de la notificacion
     const titulo = "Tenes tareas pendientes";
     const opciones = {
-        body: 'No te olivides de completar tus tareas pendientes!!',
+        body: 'No te olvides de completar tus tareas pendientes!!',
         icon: 'imagenes/iconos/icono-152.png',
         data: {
             url: './',

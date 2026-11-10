@@ -61,8 +61,15 @@
   border: 1px solid var(--bs-border-color);
   border-left: 4px solid var(--bs-primary);
 }
-#notificacion-deshacer-boton {
-  color: #000;
+
+#notificaciones-permitidas {
+  border: 1px solid var(--bs-border-color);
+  border-left: 4px solid var(--bs-primary);
+}
+
+#notificaciones-denegadas {
+  border: 1px solid var(--bs-border-color);
+  border-left: 4px solid var(--bs-primary);
 }
 
 /* Desktop: barra lateral fija con el alto de la pantalla */

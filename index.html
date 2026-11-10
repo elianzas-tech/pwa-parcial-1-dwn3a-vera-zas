@@ -88,7 +88,7 @@
               </button>
               <button id="boton-notificar" type="button"
                       class="btn btn-outline-secondary d-flex align-items-center gap-2"
-                      title="Editar listas">
+                      title="Notificaciones">
                 <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19H6.425L16.2 9.225L14.775 7.8L5 17.575V19ZM3 21V16.75L16.2 3.575C16.4 3.39167 16.6208 3.25 16.8625 3.15C17.1042 3.05 17.3583 3 17.625 3C17.8917 3 18.15 3.05 18.4 3.15C18.65 3.25 18.8667 3.4 19.05 3.6L20.425 5C20.625 5.18333 20.7708 5.4 20.8625 5.65C20.9542 5.9 21 6.15 21 6.4C21 6.66667 20.9542 6.92083 20.8625 7.1625C20.7708 7.40417 20.625 7.625 20.425 7.825L7.25 21H3ZM15.475 8.525L14.775 7.8L16.2 9.225L15.475 8.525Z"/></svg>
                 Notificar
               </button>
@@ -166,10 +166,25 @@
     <div id="notificacion-deshacer" class="toast bg-body shadow" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
       <div class="d-flex align-items-center gap-2 pe-2">
         <p id="notificacion-deshacer-texto" class="toast-body mb-0 flex-grow-1"></p>
-        <button type="button" id="notificacion-deshacer-boton" class="btn btn-primary btn-sm fw-semibold">Deshacer</button>
+        <button type="button" id="notificacion-deshacer-boton" class="btn btn-primary btn-sm fw-semibold text-light">Deshacer</button>
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
       </div>
     </div>
+
+    <div id="notificaciones-permitidas" class="toast bg-body shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+      <div class="d-flex">
+        <p id="notificaciones-permitidas-texto" class="toast-body mb-0"></p>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+
+    <div id="notificaciones-denegadas" class="toast bg-body shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+      <div class="d-flex">
+        <p id="notificaciones-denegadas-texto" class="toast-body mb-0"></p>
+        <button type="button" class="btn-close  me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

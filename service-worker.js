@@ -1,5 +1,5 @@
-const PRE_CACHE_NOMBRE = "pre-cache-v2.0";
-const DIN_CACHE_NOMBRE = "din-cache-v2.0";
+const PRE_CACHE_NOMBRE = "pre-cache-v2.2";
+const DIN_CACHE_NOMBRE = "din-cache-v2.2";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',
@@ -25,6 +25,9 @@ const PRE_CACHE_RECURSOS = [
 /* Instalacion del service-worker*/
 self.addEventListener('install', (evento) => {
     console.log('Se esta instalando el service-worker');
+
+    // Activa la version nueva sin esperar a que se cierren todas las pestanas.
+    self.skipWaiting();
 
     evento.waitUntil(
         caches.open(PRE_CACHE_NOMBRE)

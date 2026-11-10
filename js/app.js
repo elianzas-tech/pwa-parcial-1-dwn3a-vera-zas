@@ -186,7 +186,6 @@ const errorNuevaLista = document.getElementById('error-nueva-lista');
 const botonSeleccionarListas = document.getElementById('boton-seleccionar-listas');
 const botonSeleccionarTareas = document.getElementById('boton-seleccionar-tareas');
 const botonEditar = document.getElementById('boton-editar-listas');
-const botonNotificar = document.getElementById('boton-notificar');
 const barraSeleccionListas = document.getElementById('barra-seleccion-listas');
 
 // Panel principal
@@ -222,6 +221,16 @@ const elementoDeshacer = document.getElementById('notificacion-deshacer');
 const textoDeshacer = document.getElementById('notificacion-deshacer-texto');
 const botonDeshacer = document.getElementById('notificacion-deshacer-boton');
 const notificacionDeshacer = bootstrap.Toast.getOrCreateInstance(elementoDeshacer);
+
+// Toast de notificacion aceptadas
+const elementoNotiPer = document.getElementById('notificaciones-permitidas');
+const textoNotiPer = document.getElementById('notificaciones-permitidas-texto');
+const notificacionNotiPer = bootstrap.Toast.getOrCreateInstance(elementoNotiPer);
+
+// Toast de notificacion denegadas
+const elementoNotiDen = document.getElementById('notificaciones-denegadas');
+const textoNotiDen = document.getElementById('notificaciones-denegadas-texto');
+const notificacionNotiDen = bootstrap.Toast.getOrCreateInstance(elementoNotiDen);
 
 // ===================================================================
 // Estado
@@ -1015,6 +1024,40 @@ window.addEventListener('appinstalled', () => {
 // ===================================================================
 // Notificacion Push
 // ===================================================================
-botonNotificar.addEventListener('click', solicitarPermisoNoti);
 
-function solicitarPermisoNoti() {}
+function mostrarNotiPer(mensaje) {
+  textoNotiPer.textContent = mensaje;
+  notificacionNotiPer.show();
+}
+
+function mostrarNotiDen(mensaje) {
+  textoNotiDen.textContent = mensaje;
+  notificacionNotiDen.show();
+}
+
+if ('serviceWorker' in navigator){
+  const botonNotificar = document.getElementById('boton-notificar');
+  botonNotificar.addEventListener('click', solicitarPermisoNoti);
+
+  function solicitarPermisoNoti() {
+    if (Notification.permission !== 'default') {
+      return;
+    }
+
+    Notification.requestPermission()
+      .then((resultado) => {
+        if (resultado === 'granted') {
+          console.log('El usuario nos concedio el permiso');
+          mostrarNotiPer('Aceptaste recibir notificaciones');
+        } else if (resultado === 'denied') {
+          console.log('El usuario no nos concedio el permiso');
+          mostrarNotiDen('Si cambias de opinion dirigite a la configuración de notificaciones de tu explorador');
+        } else {
+          console.log('El usuario no tomo una desicion');
+        }
+      })
+    ;
+  }
+
+}
+

@@ -1,5 +1,5 @@
-const PRE_CACHE_NOMBRE = "pre-cache-v2.8";
-const DIN_CACHE_NOMBRE = "din-cache-v2.8";
+const PRE_CACHE_NOMBRE = "pre-cache-v3.0";
+const DIN_CACHE_NOMBRE = "din-cache-v3.0";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',
@@ -94,3 +94,47 @@ self.addEventListener('activate', (evento) => {
         ))
     );
 })
+
+self.addEventListener('push', (evento) => {
+    const datosServiciosPush = evento.data.json();
+    console.log(datosServiciosPush);
+    
+    //Definimos el contenido de la notificacion
+    const titulo = "Tenes tareas pendientes";
+    const opciones = {
+        body: 'No te olvides de completar tus tareas pendientes!!',
+        icon: 'imagenes/iconos/icono-152.png',
+        data: {
+            url: './',
+        },
+        actions: [
+            {
+                action: 'completar',
+                title: 'Completada',
+            }
+        ],
+    };
+
+    evento.waitUntil(self.registration.showNotification(titulo, opciones))
+});
+self.addEventListener('notificationclick', (evento) => {
+    evento.notification.close();
+
+    const accion = evento.action;
+    
+    evento.waitUntil(new Promise((resolver) => {
+        switch (accion) {
+        case "completar":
+                console.log("Marcamos la tarea como completada");
+                resolver();
+            break;
+    
+        default:
+            console.log("El usuario pulso el cuerpo de la notificacion");
+
+            clients.openWindow("./");
+            resolver();
+        }
+    }))
+    
+});

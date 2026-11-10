@@ -26,7 +26,7 @@ function armarTextoLista(lista) {
   const lineas = tareas.map((t) => `${t.completada ? '✅' : '⬜'} ${t.descripcion}`);
 
   return [
-    `📋 ${lista.nombre}`,
+    `📋 DOIT - Lista: ${lista.nombre}`,
     '',
     ...(lineas.length > 0 ? lineas : ['(sin tareas)']),
     '',
@@ -57,7 +57,7 @@ async function compartirLista() {
 
   // Sin "url": se comparte solo el texto de la lista, que es lo que importa.
   const datos = {
-    title: `Lista: ${lista.nombre}`,
+    title: `DOIT - Lista: ${lista.nombre}`,
     text: armarTextoLista(lista),
   };
 
@@ -74,13 +74,13 @@ async function compartirLista() {
   }
 }
 
-// Nombre de archivo a partir del nombre de la lista: "Súper 2" -> "súper-2.txt".
+// Nombre de archivo a partir del nombre de la lista: "Súper 2" -> "DOIT_Lista_súper-2.txt".
 function nombreArchivo(lista) {
   const base = lista.nombre
     .toLowerCase()
     .replace(/[^a-z0-9áéíóúüñ]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return `${base || 'lista'}.txt`;
+  return `DOIT_Lista_${base || 'sin-nombre'}.txt`;
 }
 
 // Alternativa cuando no se pueden compartir archivos: se descarga.
@@ -99,7 +99,7 @@ async function compartirArchivo() {
   if (!lista) return;
 
   const archivo = new File([armarTextoLista(lista)], nombreArchivo(lista), { type: 'text/plain' });
-  const datos = { title: `Lista: ${lista.nombre}`, files: [archivo] };
+  const datos = { title: `DOIT - Lista: ${lista.nombre}`, files: [archivo] };
 
   // Para archivos no alcanza con navigator.share: hay que verificar
   // con canShare que el navegador acepte este tipo de archivo.

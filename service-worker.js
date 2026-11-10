@@ -1,5 +1,5 @@
-const PRE_CACHE_NOMBRE = "pre-cache-v2.3";
-const DIN_CACHE_NOMBRE = "din-cache-v2.3";
+const PRE_CACHE_NOMBRE = "pre-cache-v2.7";
+const DIN_CACHE_NOMBRE = "din-cache-v2.7";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',
@@ -8,6 +8,7 @@ const PRE_CACHE_RECURSOS = [
     './favicon.svg',
     './css/styles.css',
     './js/app.js',
+    './js/compartir.js',
     './js/iconos.js',
     './js/claro-oscuro.js',
     './imagenes/casilla-completada.svg',
@@ -21,6 +22,7 @@ const PRE_CACHE_RECURSOS = [
     //BOOTSTRAP CDN
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
+    'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
 ]
 
 

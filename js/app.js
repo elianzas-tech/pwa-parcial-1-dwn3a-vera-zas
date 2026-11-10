@@ -770,6 +770,9 @@ function renderizarPanel() {
   // La sección de tareas (filtros, form y lista) solo aparece si hay una lista activa.
   seccionTareas.classList.toggle('d-none', !lista);
 
+  // Sin lista activa no hay nada para compartir.
+  document.getElementById('boton-compartir').disabled = !lista;
+
   // El título solo existe en la página si hay una lista activa.
   if (lista) {
     tituloLista.textContent = lista.nombre;

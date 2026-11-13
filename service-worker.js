@@ -47,7 +47,6 @@ self.addEventListener('install', (evento) => {
 self.addEventListener('fetch', (evento) => {
     console.log("Se intercepto la peticion a:", evento.request.url);
 
-    // Solo se cachean peticiones GET http/https (no POST ni chrome-extension://).
     if (evento.request.method !== "GET" || !evento.request.url.startsWith('http')) {
         return;
     }

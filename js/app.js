@@ -334,7 +334,7 @@ function crearBotonLapiz(aria, alHacerClic) {
 function crearBotonConfirmar(aria, alHacerClic) {
   const boton = document.createElement('button');
   boton.type = 'button';
-  boton.className = 'btn p-0 border-0 flex-shrink-0 fs-5 lh-1 fw-bold text-success';
+  boton.className = 'btn p-0 border-0 flex-shrink-0 fs-5 lh-1 fw-bold text-light';
   boton.setAttribute('aria-label', aria);
   boton.textContent = '✓';
   boton.addEventListener('click', (e) => { e.stopPropagation(); alHacerClic(); });

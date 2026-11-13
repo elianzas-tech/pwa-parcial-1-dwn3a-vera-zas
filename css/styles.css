@@ -85,7 +85,8 @@
   }
 }
 
-/* Checkbox personalizado con íconos SVG */
+/* Checkbox personalizado con íconos SVG.
+   La máscara va en ::before para no recortar el outline de :focus-visible. */
 .casilla-personalizada {
   appearance: none;
   -webkit-appearance: none;
@@ -94,17 +95,24 @@
   margin: 0;
   flex-shrink: 0;
   cursor: pointer;
+  border-radius: 4px;
+}
+.casilla-personalizada::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
   background-color: currentColor;
   -webkit-mask: url('../imagenes/casilla-vacia-con-borde.svg') no-repeat center / contain;
   mask: url('../imagenes/casilla-vacia-con-borde.svg') no-repeat center / contain;
 }
-.casilla-personalizada:checked {
+.casilla-personalizada:checked::before {
   -webkit-mask-image: url('../imagenes/casilla-seleccionada.svg');
   mask-image: url('../imagenes/casilla-seleccionada.svg');
 }
 
 /* Tarea completada */
-.casilla-personalizada.casilla-completar:checked {
+.casilla-personalizada.casilla-completar:checked::before {
   -webkit-mask-image: url('../imagenes/casilla-completada.svg');
   mask-image: url('../imagenes/casilla-completada.svg');
   background-color: #2ECC71;

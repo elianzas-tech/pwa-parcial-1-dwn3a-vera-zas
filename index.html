@@ -92,7 +92,7 @@
                       class="btn btn-outline-secondary d-flex align-items-center gap-2"
                       title="Notificaciones">
                 <svg class="icono-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19v-2h2v-7q0-2.075 1.25-3.687T10.5 4.2v-.7q0-.625.438-1.062T12 2t1.063.438T13.5 3.5v.7q2 .5 3.25 2.113T18 10v7h2v2zm8 3q-.825 0-1.412-.587T10 20h4q0 .825-.587 1.413T12 22m-4-5h8v-7q0-1.65-1.175-2.825T12 6T9.175 7.175T8 10z"/></svg>
-                Notificar
+                <span id="texto-notificar">Notificar</span>
               </button>
               <!-- Desplegable: compartir la lista como texto o como archivo .txt -->
               <div class="dropdown">
@@ -131,19 +131,19 @@
             <!-- Filtros: componente Nav de Bootstrap-->
             <div class="bg-body border rounded-3 p-2 mb-4">
               <ul class="nav nav-pills nav-justified flex-column flex-md-row gap-2" role="tablist">
-                <li class="nav-item" role="presentation">
+                <li class="nav-item" role="none">
                   <a class="nav-link pestana active py-2 d-flex align-items-center justify-content-center gap-2"
                           href="#" data-filtro="todas" role="tab" aria-selected="true">
                     Todas <span id="contador-todas" class="badge rounded-pill text-bg-secondary">0</span>
                   </a>
                 </li>
-                <li class="nav-item" role="presentation">
+                <li class="nav-item" role="none">
                   <a class="nav-link pestana py-2 d-flex align-items-center justify-content-center gap-2"
                           href="#" data-filtro="pendientes" role="tab" aria-selected="false">
                     Pendientes <span id="contador-pendientes" class="badge rounded-pill text-bg-secondary">0</span>
                   </a>
                 </li>
-                <li class="nav-item" role="presentation">
+                <li class="nav-item" role="none">
                   <a class="nav-link pestana py-2 d-flex align-items-center justify-content-center gap-2"
                           href="#" data-filtro="completadas" role="tab" aria-selected="false">
                     Completadas <span id="contador-completadas" class="badge rounded-pill text-bg-secondary">0</span>
@@ -213,7 +213,7 @@
 
   <!-- Modal para compartir cuando el navegador no soporta navigator.share.
        Lo completa y lo abre js/compartir.js. -->
-  <div id="modal-compartir" class="modal fade" tabindex="-1" aria-labelledby="titulo-modal-compartir" aria-hidden="true">
+  <div id="modal-compartir" class="modal fade" tabindex="-1" aria-labelledby="titulo-modal-compartir">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -225,20 +225,45 @@
           <textarea id="texto-modal-compartir" class="form-control" rows="7" readonly></textarea>
           <button type="button" id="boton-copiar-compartir" class="btn btn-primary" aria-live="polite">Copiar texto</button>
           <div class="d-flex flex-wrap gap-2" role="group" aria-label="Compartir en">
-            <a id="enlace-whatsapp" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
+            <a id="enlace-whatsapp" href="#" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
               <i class="bi bi-whatsapp" aria-hidden="true"></i> WhatsApp
             </a>
-            <a id="enlace-facebook" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
+            <a id="enlace-facebook" href="#" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
               <i class="bi bi-facebook" aria-hidden="true"></i> Facebook
             </a>
             <a id="enlace-instagram" href="https://www.instagram.com/direct/inbox/" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2" target="_blank" rel="noopener">
               <i class="bi bi-instagram" aria-hidden="true"></i> Instagram
             </a>
-            <a id="enlace-correo" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2">
+            <a id="enlace-correo" href="#" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-2">
               <i class="bi bi-envelope" aria-hidden="true"></i> Correo
             </a>
           </div>
           <p class="small text-body-secondary mb-0">Instagram: el texto se copia para que lo pegues en el chat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal con los pasos para desbloquear las notificaciones. El navegador
+       no permite volver a mostrar el pedido de permiso una vez denegado.
+       Lo abre js/app.js. -->
+  <div id="modal-notificaciones" class="modal fade" tabindex="-1" aria-labelledby="titulo-modal-notificaciones">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="titulo-modal-notificaciones" class="modal-title h5">Notificaciones bloqueadas</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-3">
+          <p class="mb-0">Por seguridad, el navegador no permite volver a pedir el permiso. Podés habilitarlas en 3 pasos:</p>
+          <ol class="mb-0 d-flex flex-column gap-2">
+            <li>Tocá el ícono <i class="bi bi-lock" aria-hidden="true"></i> a la izquierda de la dirección de la página.</li>
+            <li>En <strong>Notificaciones</strong>, elegí <strong>Permitir</strong> (o <strong>Restablecer permiso</strong>).</li>
+            <li>Volvé a esta pestaña: el botón se actualiza solo.</li>
+          </ol>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
         </div>
       </div>
     </div>

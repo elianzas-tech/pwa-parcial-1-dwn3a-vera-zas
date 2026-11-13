@@ -1,5 +1,5 @@
-const PRE_CACHE_NOMBRE = "pre-cache-v3.0";
-const DIN_CACHE_NOMBRE = "din-cache-v3.0";
+const PRE_CACHE_NOMBRE = "pre-cache-v3.8";
+const DIN_CACHE_NOMBRE = "din-cache-v3.8";
 const PRE_CACHE_RECURSOS = [
     //RECURSOS
     './',
@@ -35,10 +35,10 @@ self.addEventListener('install', (evento) => {
 
     evento.waitUntil(
         caches.open(PRE_CACHE_NOMBRE)
-        .then(cache => {
-            console.log('Cache de pre-caching abierta');
-            return cache.addAll(PRE_CACHE_RECURSOS);
-        })
+            .then(cache => {
+                console.log('Cache de pre-caching abierta');
+                return cache.addAll(PRE_CACHE_RECURSOS);
+            })
     );
 })
 
@@ -86,18 +86,24 @@ self.addEventListener('activate', (evento) => {
     // Borra las caches de versiones anteriores para que se use la version nueva.
     evento.waitUntil(
         caches.keys()
-        .then(nombres => Promise.all(
-            nombres
-                .filter(nombre => nombre !== PRE_CACHE_NOMBRE && nombre !== DIN_CACHE_NOMBRE)
-                .map(nombre => caches.delete(nombre))
-        ))
+            .then(nombres => Promise.all(
+                nombres
+                    .filter(nombre => nombre !== PRE_CACHE_NOMBRE && nombre !== DIN_CACHE_NOMBRE)
+                    .map(nombre => caches.delete(nombre))
+            ))
     );
 })
 
 self.addEventListener('push', (evento) => {
-    const datosServiciosPush = evento.data.json();
+    // El contenido puede venir como JSON o como texto plano (por ejemplo, desde el botón "Push" de DevTools).
+    let datosServiciosPush = null;
+    try {
+        datosServiciosPush = evento.data ? evento.data.json() : null;
+    } catch {
+        datosServiciosPush = evento.data ? evento.data.text() : null;
+    }
     console.log(datosServiciosPush);
-    
+
     //Definimos el contenido de la notificacion
     const titulo = "Tenes tareas pendientes";
     const opciones = {
@@ -120,20 +126,20 @@ self.addEventListener('notificationclick', (evento) => {
     evento.notification.close();
 
     const accion = evento.action;
-    
+
     evento.waitUntil(new Promise((resolver) => {
         switch (accion) {
-        case "completar":
+            case "completar":
                 console.log("Marcamos la tarea como completada");
                 resolver();
-            break;
-    
-        default:
-            console.log("El usuario pulso el cuerpo de la notificacion");
+                break;
 
-            clients.openWindow("./");
-            resolver();
+            default:
+                console.log("El usuario pulso el cuerpo de la notificacion");
+
+                clients.openWindow("./");
+                resolver();
         }
     }))
-    
+
 });

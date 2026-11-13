@@ -1,6 +1,6 @@
 'use strict';
 /*Registro del service-worker*/
-if("serviceWorker" in navigator){
+if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js");
 }
 
@@ -29,8 +29,8 @@ class Tarea {
     this.#completada = completada;
   }
 
-  aObjeto(){
-    return {id: this.#id, descripcion: this.#descripcion, completada: this.#completada};
+  aObjeto() {
+    return { id: this.#id, descripcion: this.#descripcion, completada: this.#completada };
   }
 
   get id() { return this.#id; }
@@ -40,13 +40,13 @@ class Tarea {
 
   get completada() { return this.#completada; }
   set completada(valor) { this.#completada = valor; }
-  
+
   alternarCompletada() {
-    this.completada = !this.completada; 
+    this.completada = !this.completada;
   }
 
   renombrarDescripcion(nuevaDescripcion) {
-    this.descripcion = nuevaDescripcion; 
+    this.descripcion = nuevaDescripcion;
   }
 }
 
@@ -61,19 +61,19 @@ class Lista {
   constructor(nombre, id = ++Lista.#ultimoId) {
     this.#id = id;
     this.#nombre = nombre;
-    if(id>Lista.#ultimoId) Lista.#ultimoId = id; // No repetir ids al cargar
+    if (id > Lista.#ultimoId) Lista.#ultimoId = id; // No repetir ids al cargar
   }
 
-  aObjeto(){
-    return{id: this.#id, nombre: this.#nombre, tareas: this.#tareas.map(t => t.aObjeto())};
+  aObjeto() {
+    return { id: this.#id, nombre: this.#nombre, tareas: this.#tareas.map(t => t.aObjeto()) };
   }
 
-  static desdeObjeto(objeto){
+  static desdeObjeto(objeto) {
     const lista = new Lista(objeto.nombre, objeto.id);
     lista.#tareas = objeto.tareas.map((t) => new Tarea(t.descripcion, t.id, t.completada));
     return lista;
   }
-  
+
   get id() { return this.#id; }
   get nombre() { return this.#nombre; }
   get tareas() { return [...this.#tareas]; }
@@ -152,8 +152,8 @@ class GestorListas {
   cargarListas(listas, idActiva) {
     this.#listas = listas;
     this.#idListaActiva = listas.some((l) => l.id === idActiva)
-    ? idActiva
-    : listas[0]?.id ?? null;
+      ? idActiva
+      : listas[0]?.id ?? null;
   }
 
   eliminarListas(ids) {
@@ -306,7 +306,7 @@ function eliminarListasConDeshacer(ids) {
   const borradas = gestor.listas.filter((l) => ids.includes(l.id));
   if (borradas.length === 0) return;
 
-  const anteriores = gestor.listas; 
+  const anteriores = gestor.listas;
   const idActiva = gestor.listaActiva?.id ?? null;
   gestor.eliminarListas(ids);
   if (!gestor.hayListas) modoSeleccionListas = false;
@@ -373,18 +373,13 @@ function crearEntradaRenombre(valorInicial, alGuardar, alCancelar) {
   return { label, entrada };
 }
 
-let usandoTeclado = false;
-document.addEventListener('keydown', () => { usandoTeclado = true; });
-document.addEventListener('mousedown', () => { usandoTeclado = false; });
-
-function resaltarFilaAlEnfocar(casilla, fila) {
-  casilla.addEventListener('focus', () => {
-    if (!usandoTeclado) return;
-    fila.style.outline = '2px solid var(--bs-link-color)';
-    fila.style.outlineOffset = '2px';
-  });
-  casilla.addEventListener('blur', () => {
-    fila.style.outline = '';
+// Permite marcar/desmarcar las casillas también con Enter (además de Espacio).
+function habilitarEnterEnCasilla(casilla) {
+  casilla.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      casilla.click();
+    }
   });
 }
 
@@ -413,7 +408,7 @@ function renderizarBarraSeleccion(contenedor, { visible, todosMarcados, textoTod
   casillaTodos.addEventListener('change', alTodos);
 
   filaTodos.append(casillaTodos, document.createTextNode(textoTodos));
-  resaltarFilaAlEnfocar(casillaTodos, filaTodos);
+  habilitarEnterEnCasilla(casillaTodos);
 
   const botonEliminar = document.createElement('button');
   botonEliminar.type = 'button';
@@ -427,7 +422,7 @@ function renderizarBarraSeleccion(contenedor, { visible, todosMarcados, textoTod
 
 function alternarTodasListas() {
   const ids = gestor.listas.map((l) => l.id);
-  if (listasSeleccionadas.size === ids.length){
+  if (listasSeleccionadas.size === ids.length) {
     listasSeleccionadas.clear();
   } else {
     ids.forEach((id) => listasSeleccionadas.add(id));
@@ -439,11 +434,11 @@ function alternarTodasTareas() {
   const lista = gestor.listaActiva;
   if (!lista) return;
   const ids = lista.tareas.map((t) => t.id);
-  if (ids.length > 0 && tareasSeleccionadas.size === ids.length){
+  if (ids.length > 0 && tareasSeleccionadas.size === ids.length) {
     tareasSeleccionadas.clear();
   } else {
     ids.forEach((id) => tareasSeleccionadas.add(id));
-  } 
+  }
   renderizar();
 }
 
@@ -491,7 +486,7 @@ formularioNuevaLista.addEventListener('submit', (e) => {
   }
 
   limpiarErrorLista();
-  gestor.agregarLista(nombre);  
+  gestor.agregarLista(nombre);
   entradaNuevaLista.value = '';
   renderizar();
 });
@@ -556,6 +551,8 @@ function crearFormularioTarea() {
 
     limpiarError();
     gestor.listaActiva.agregarTarea(descripcion);
+    // Si estaba viendo "Completadas", pasa a "Todas" para que vea la tarea recién creada.
+    if (filtroActivo === 'completadas') filtroActivo = 'todas';
     entrada.value = '';
     renderizar();
   });
@@ -647,6 +644,9 @@ function actualizarPestanas() {
     const esActivo = pestana.dataset.filtro === filtroActivo;
     pestana.classList.toggle('active', esActivo);
     pestana.setAttribute('aria-selected', esActivo ? 'true' : 'false');
+    // "Tabindex móvil": solo la pestaña activa entra en el orden de Tab;
+    // entre pestañas se navega con las flechas.
+    pestana.tabIndex = esActivo ? 0 : -1;
   });
 }
 
@@ -687,7 +687,7 @@ function renderizarBarraLateral() {
     alEliminar: eliminarListasSeleccionadas,
   });
 
-   gestor.listas.forEach((lista) => {
+  gestor.listas.forEach((lista) => {
     const esActiva = lista.id === gestor.listaActiva?.id;
     const base = 'list-group-item rounded-3 border';
     const relleno = esActiva ? 'active fw-semibold' : 'bg-transparent';
@@ -716,7 +716,7 @@ function renderizarBarraLateral() {
 
       fila.append(casilla, nombre);
       listasBarraLateral.append(fila);
-      resaltarFilaAlEnfocar(casilla, fila);
+      habilitarEnterEnCasilla(casilla);
       return;
     }
 
@@ -837,7 +837,7 @@ function renderizarTareas() {
         renderizar();
       });
       li.append(casilla);
-      resaltarFilaAlEnfocar(casilla, li);
+      habilitarEnterEnCasilla(casilla);
 
       const contenido = document.createElement('label');
       contenido.htmlFor = idCasilla;
@@ -855,7 +855,7 @@ function renderizarTareas() {
         gestor.listaActiva.alternarTarea(tarea.id);
         renderizar();
       });
-      resaltarFilaAlEnfocar(casilla, li);
+      habilitarEnterEnCasilla(casilla);
 
       // Texto de la tarea, o entrada de renombre si esta tarea se está editando.
       let contenido;
@@ -880,8 +880,8 @@ function renderizarTareas() {
       } else {
         contenido = document.createElement('label');
         contenido.htmlFor = idCasilla;
-        contenido.className = 'flex-grow-1';  
-        contenido.textContent = tarea.descripcion;   
+        contenido.className = 'flex-grow-1';
+        contenido.textContent = tarea.descripcion;
         li.append(casilla, contenido);
 
         if (modoEdicion) {
@@ -917,6 +917,31 @@ pestanas.forEach((pestana) => {
     e.preventDefault();
     filtroActivo = pestana.dataset.filtro;
     renderizar();
+  });
+});
+
+// Navegación con teclado según el patrón de pestañas de ARIA:
+// flechas para moverse (con vuelta al principio/final), Inicio y Fin
+// para ir a la primera y la última. La pestaña enfocada se activa al instante.
+const listaPestanas = [...pestanas];
+listaPestanas.forEach((pestana, indice) => {
+  pestana.addEventListener('keydown', (e) => {
+    const total = listaPestanas.length;
+    const destinos = {
+      ArrowRight: (indice + 1) % total,
+      ArrowDown: (indice + 1) % total,
+      ArrowLeft: (indice - 1 + total) % total,
+      ArrowUp: (indice - 1 + total) % total,
+      Home: 0,
+      End: total - 1,
+    };
+    if (!(e.key in destinos)) return;
+
+    e.preventDefault(); // evita que las flechas hagan scroll
+    const destino = listaPestanas[destinos[e.key]];
+    filtroActivo = destino.dataset.filtro;
+    renderizar();
+    destino.focus();
   });
 });
 
@@ -958,7 +983,7 @@ function obtenerListas() {
       let idActiva = null;
       try {
         idActiva = JSON.parse(localStorage.getItem(LS_LISTA_ACTIVA));
-      } catch {}
+      } catch { }
       gestor.cargarListas(objetos.map((o) => Lista.desdeObjeto(o)), idActiva);
     }
     renderizar();
@@ -1035,29 +1060,86 @@ function mostrarNotiDen(mensaje) {
   notificacionNotiDen.show();
 }
 
-if ('serviceWorker' in navigator){
+if ('serviceWorker' in navigator && 'Notification' in window) {
   const botonNotificar = document.getElementById('boton-notificar');
-  botonNotificar.addEventListener('click', solicitarPermisoNoti);
+  const textoNotificar = document.getElementById('texto-notificar');
+  botonNotificar.addEventListener('click', manejarNotificaciones);
 
-  function solicitarPermisoNoti() {
-    if (Notification.permission !== 'default') {
+  // El botón refleja el estado actual del permiso.
+  function actualizarBotonNotificar() {
+    const estados = {
+      granted: { texto: 'Activadas', titulo: 'Notificaciones activadas: tocá para enviar un recordatorio' },
+      denied: { texto: 'Bloqueadas', titulo: 'Notificaciones bloqueadas en el navegador' },
+      default: { texto: 'Notificar', titulo: 'Activar notificaciones' },
+    };
+    const estado = estados[Notification.permission] ?? estados.default;
+    textoNotificar.textContent = estado.texto;
+    botonNotificar.title = estado.titulo;
+    botonNotificar.classList.toggle('active', Notification.permission === 'granted');
+    botonNotificar.setAttribute('aria-pressed', Notification.permission === 'granted' ? 'true' : 'false');
+
+    // Si el usuario las desbloqueó con el modal de ayuda abierto, se cierra.
+    if (Notification.permission !== 'denied') {
+      bootstrap.Modal.getInstance(document.getElementById('modal-notificaciones'))?.hide();
+    }
+  }
+
+  actualizarBotonNotificar();
+
+  // Si el usuario cambia el permiso desde la configuración del navegador
+  // (el candado de la barra de direcciones), el botón se actualiza sin recargar.
+  if (navigator.permissions?.query) {
+    navigator.permissions.query({ name: 'notifications' })
+      .then((estadoPermiso) => {
+        estadoPermiso.addEventListener('change', actualizarBotonNotificar);
+      })
+      .catch(() => { });
+  }
+
+  // Alternativa: se vuelve a revisar cuando la pestaña recupera el foco.
+  window.addEventListener('focus', actualizarBotonNotificar);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') actualizarBotonNotificar();
+  });
+
+  function enviarNotificacionPrueba() {
+    navigator.serviceWorker.ready.then((registro) => {
+      const lista = gestor.listaActiva;
+      const pendientes = lista ? lista.contarPendientes() : 0;
+      const titulo = pendientes > 0 ? "¡Tenés tareas pendientes!" : "DOIT - Notificaciones";
+      const cuerpo = pendientes > 0
+        ? `Tenés ${pendientes} tarea${pendientes > 1 ? 's' : ''} pendiente${pendientes > 1 ? 's' : ''} por completar.`
+        : "¡Ya tenés activadas las notificaciones!";
+
+      registro.showNotification(titulo, {
+        body: cuerpo,
+        icon: './imagenes/iconos/icono-152.png',
+        badge: './imagenes/iconos/icono-48.png',
+        data: { url: './' },
+      });
+    });
+  }
+
+  function manejarNotificaciones() {
+    if (Notification.permission === 'granted') {
+      enviarNotificacionPrueba();
       return;
     }
 
-    Notification.requestPermission()
-      .then((resultado) => {
-        if (resultado === 'granted') {
-          console.log('El usuario nos concedio el permiso');
-          mostrarNotiPer('Aceptaste recibir notificaciones');
-        } else if (resultado === 'denied') {
-          console.log('El usuario no nos concedio el permiso');
-          mostrarNotiDen('Si cambias de opinion dirigite a la configuración de notificaciones de tu explorador');
-        } else {
-          console.log('El usuario no tomo una desicion');
-        }
-      })
-    ;
-  }
+    if (Notification.permission === 'denied') {
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('modal-notificaciones')).show();
+      return;
+    }
 
+    Notification.requestPermission().then((resultado) => {
+      actualizarBotonNotificar();
+      if (resultado === 'granted') {
+        mostrarNotiPer('¡Aceptaste recibir notificaciones!');
+        enviarNotificacionPrueba();
+      } else if (resultado === 'denied') {
+        mostrarNotiDen('Si cambiás de opinión, podés habilitarlas desde la configuración del navegador.');
+      }
+    });
+  }
 }
 
